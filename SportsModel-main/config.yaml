@@ -1,0 +1,15 @@
+ot:
+  threshold: 0.15
+  p_norm: 2
+  reg: 0.01
+edge:
+  min_ev: 0.03
+  min_kelly: 0.01
+  max_kelly: 0.05
+simulation:
+  num_paths: 5000
+  confidence_interval: 0.95
+risk:
+  max_exposure_per_game: 0.02
+  max_daily_exposure: 0.10
+  stop_loss_daily: -0.05
