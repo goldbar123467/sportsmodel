@@ -6,6 +6,8 @@ The current MLB model uses market totals as the baseline and trains on the resid
 
 ## Performance Snapshot
 
+<!-- SPORTSBOTV2_RECORD_START -->
+
 **Overall record:** 53-29-3  
 **Win rate:** 64.6%  
 **ROI:** +21.1 units / +25.7% at -110 juice
@@ -41,6 +43,8 @@ The current MLB model uses market totals as the baseline and trains on the resid
 | Low | 16-9 | 64.0% |
 | Medium | 28-14-1 | 66.7% |
 | High | 9-6-2 | 60.0% |
+
+<!-- SPORTSBOTV2_RECORD_END -->
 
 ## What The Model Does
 

@@ -198,6 +198,7 @@ def main():
         pred = float(predictions[i])
         odds = row.get('odds_total', None)
         pick = build_pick(row['away_team'], row['home_team'], pred, odds)
+        pick['game_pk'] = int(row['game_pk'])
         picks.append(pick)
 
     # Save picks

@@ -11,6 +11,7 @@ sys.path.insert(0, str(XGB_DIR))
 import scrape  # noqa: E402
 import train  # noqa: E402
 import pick_today  # noqa: E402
+import recordkeeping  # noqa: E402
 
 
 class FakeResponse:
@@ -130,8 +131,7 @@ class XgbProductionTests(unittest.TestCase):
     def test_daily_cycle_uses_odds_api_scrape_and_no_sbr_scraper(self):
         cycle = (XGB_DIR / "auto_cycle.sh").read_text()
 
-        self.assertIn("scrape.py", cycle)
-        self.assertIn("pick_today.py", cycle)
+        self.assertIn("daily_bot.py", cycle)
         self.assertIn("America/New_York", cycle)
         self.assertNotIn("sbr_scrape.py", cycle)
 
@@ -176,6 +176,55 @@ class XgbProductionTests(unittest.TestCase):
         self.assertIsNone(games[0]["away_score"])
         self.assertIsNone(games[0]["home_score"])
         self.assertIsNone(games[0]["total_runs"])
+
+    def test_settle_picks_builds_idempotent_internal_performance_summary(self):
+        existing = recordkeeping.empty_performance(baseline=False)
+        picks = [
+            {"away": "NYY", "home": "BOS", "pick": "OVER", "odds": 8.5, "pred": 9.7, "edge": 1.2, "conf": "★★☆"},
+            {"away": "LAD", "home": "SF", "pick": "UNDER", "odds": 7.0, "pred": 5.9, "edge": -1.1, "conf": "★★☆"},
+            {"away": "SEA", "home": "TEX", "pick": "OVER", "odds": 9.0, "pred": 10.8, "edge": 1.8, "conf": "★★★"},
+            {"away": "CHC", "home": "MIL", "pick": "PASS", "odds": 8.0, "pred": 8.2, "edge": 0.2, "conf": "☆☆☆"},
+        ]
+        games = [
+            {"game_pk": 1, "away_team": "NYY", "home_team": "BOS", "away_score": 5, "home_score": 4, "total_runs": 9},
+            {"game_pk": 2, "away_team": "LAD", "home_team": "SF", "away_score": 2, "home_score": 5, "total_runs": 7},
+            {"game_pk": 3, "away_team": "SEA", "home_team": "TEX", "away_score": 2, "home_score": 3, "total_runs": 5},
+        ]
+
+        first = recordkeeping.apply_settled_date(existing, "2026-05-06", picks, games)
+        second = recordkeeping.apply_settled_date(first, "2026-05-06", picks, games)
+
+        self.assertEqual(len(second["settled_picks"]), 3)
+        self.assertEqual(second["overall"]["record"], "1-1-1")
+        self.assertEqual(second["overall"]["picks"], 3)
+        self.assertEqual(second["by_pick_type"]["OVER"]["record"], "1-1")
+        self.assertEqual(second["by_pick_type"]["UNDER"]["record"], "0-0-1")
+        self.assertEqual(second["by_confidence"]["Medium"]["record"], "1-0-1")
+        self.assertEqual(second["by_confidence"]["High"]["record"], "0-1")
+
+    def test_readme_record_block_is_rendered_from_performance_summary(self):
+        performance = recordkeeping.empty_performance(baseline=False)
+        performance = recordkeeping.apply_settled_date(
+            performance,
+            "2026-05-06",
+            [{"away": "NYY", "home": "BOS", "pick": "OVER", "odds": 8.5, "pred": 9.7, "edge": 1.2, "conf": "★★☆"}],
+            [{"game_pk": 1, "away_team": "NYY", "home_team": "BOS", "away_score": 5, "home_score": 4, "total_runs": 9}],
+        )
+        readme = "# Title\n\n## Performance Snapshot\nold stats\n\n## What The Model Does\nbody\n"
+
+        updated = recordkeeping.update_readme_text(readme, performance)
+
+        self.assertIn("<!-- SPORTSBOTV2_RECORD_START -->", updated)
+        self.assertIn("**Overall record:** 1-0", updated)
+        self.assertIn("| May 6 | 1-0 | 100.0% | 1 |", updated)
+        self.assertIn("## What The Model Does\nbody", updated)
+
+    def test_cron_defaults_to_11am_eastern_telegram_cycle(self):
+        cron = (XGB_DIR / "install_cron.sh").read_text()
+
+        self.assertIn("0 11 * * *", cron)
+        self.assertIn("daily MLB Telegram cycle", cron)
+        self.assertNotIn("55 9 * * *", cron)
 
 
 if __name__ == "__main__":

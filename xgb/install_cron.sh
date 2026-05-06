@@ -4,9 +4,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCAL_TZ="${LOCAL_TZ:-America/New_York}"
-SCHEDULE="${SCHEDULE:-55 9 * * *}"
-BEGIN_MARKER="# BEGIN SportsBotv2 daily odds scrape"
-END_MARKER="# END SportsBotv2 daily odds scrape"
+SCHEDULE="${SCHEDULE:-0 11 * * *}"
+BEGIN_MARKER="# BEGIN SportsBotv2 daily MLB Telegram cycle"
+END_MARKER="# END SportsBotv2 daily MLB Telegram cycle"
+OLD_BEGIN_MARKER="# BEGIN SportsBotv2 daily odds scrape"
+OLD_END_MARKER="# END SportsBotv2 daily odds scrape"
 
 current="$(mktemp)"
 next="$(mktemp)"
@@ -16,7 +18,8 @@ cleanup() {
 trap cleanup EXIT
 
 crontab -l > "$current" 2>/dev/null || true
-sed "/$BEGIN_MARKER/,/$END_MARKER/d" "$current" > "$next"
+sed "/$OLD_BEGIN_MARKER/,/$OLD_END_MARKER/d" "$current" > "$next"
+sed -i "/$BEGIN_MARKER/,/$END_MARKER/d" "$next"
 
 cat >> "$next" <<CRON
 $BEGIN_MARKER

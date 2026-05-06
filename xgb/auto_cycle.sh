@@ -1,6 +1,6 @@
 #!/bin/bash
 # MLB O/U Bot daily cycle.
-# Scrapes MLB schedule/data plus The Odds API totals, retrains, then writes picks.
+# Settles yesterday, updates record stats, generates today's picks, then sends Telegram.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -30,15 +30,8 @@ if [ -z "${ODDS_API_KEY:-}" ]; then
   exit 2
 fi
 
-echo "$(date -Is): === Starting MLB O/U daily cycle for $DATE_STR ($LOCAL_TZ) ==="
+shift || true
 
-echo "$(date -Is): Scraping MLB data and Odds API totals..."
-"$PYTHON" scrape.py --date "$DATE_STR" --season "$SEASON"
-
-echo "$(date -Is): Retraining XGBoost model..."
-"$PYTHON" train.py
-
-echo "$(date -Is): Generating picks..."
-"$PYTHON" pick_today.py "$DATE_STR"
-
+echo "$(date -Is): === Starting MLB O/U Telegram cycle for $DATE_STR ($LOCAL_TZ) ==="
+"$PYTHON" daily_bot.py --date "$DATE_STR" --season "$SEASON" --local-tz "$LOCAL_TZ" "$@"
 echo "$(date -Is): === Daily cycle complete ==="

@@ -1,0 +1,299 @@
+{
+  "version": 1,
+  "baseline_through": "2026-05-04",
+  "manual_baseline": {
+    "daily": [
+      {
+        "date": "2026-04-23",
+        "label": "Apr 23",
+        "wins": 1,
+        "losses": 3,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-24",
+        "label": "Apr 24",
+        "wins": 5,
+        "losses": 3,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-25",
+        "label": "Apr 25",
+        "wins": 4,
+        "losses": 2,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-26",
+        "label": "Apr 26",
+        "wins": 6,
+        "losses": 5,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-27",
+        "label": "Apr 27",
+        "wins": 1,
+        "losses": 1,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-28",
+        "label": "Apr 28",
+        "wins": 7,
+        "losses": 2,
+        "pushes": 0
+      },
+      {
+        "date": "2026-04-29",
+        "label": "Apr 29",
+        "wins": 4,
+        "losses": 2,
+        "pushes": 1
+      },
+      {
+        "date": "2026-04-30",
+        "label": "Apr 30",
+        "wins": 5,
+        "losses": 0,
+        "pushes": 1
+      },
+      {
+        "date": "2026-05-01",
+        "label": "May 1",
+        "wins": 8,
+        "losses": 1,
+        "pushes": 0
+      },
+      {
+        "date": "2026-05-02",
+        "label": "May 2",
+        "wins": 7,
+        "losses": 4,
+        "pushes": 1
+      },
+      {
+        "date": "2026-05-03",
+        "label": "May 3",
+        "wins": 3,
+        "losses": 4,
+        "pushes": 0
+      },
+      {
+        "date": "2026-05-04",
+        "label": "May 4",
+        "wins": 2,
+        "losses": 2,
+        "pushes": 0
+      }
+    ],
+    "by_pick_type": {
+      "OVER": {
+        "wins": 27,
+        "losses": 15,
+        "pushes": 0
+      },
+      "UNDER": {
+        "wins": 26,
+        "losses": 14,
+        "pushes": 0
+      }
+    },
+    "by_confidence": {
+      "Low": {
+        "wins": 16,
+        "losses": 9,
+        "pushes": 0
+      },
+      "Medium": {
+        "wins": 28,
+        "losses": 14,
+        "pushes": 1
+      },
+      "High": {
+        "wins": 9,
+        "losses": 6,
+        "pushes": 2
+      }
+    }
+  },
+  "settled_picks": [],
+  "last_updated": "2026-05-06T02:23:52.817175+00:00",
+  "daily": [
+    {
+      "date": "2026-04-23",
+      "label": "Apr 23",
+      "wins": 1,
+      "losses": 3,
+      "pushes": 0,
+      "record": "1-3",
+      "picks": 4,
+      "win_pct": 25.0
+    },
+    {
+      "date": "2026-04-24",
+      "label": "Apr 24",
+      "wins": 5,
+      "losses": 3,
+      "pushes": 0,
+      "record": "5-3",
+      "picks": 8,
+      "win_pct": 62.5
+    },
+    {
+      "date": "2026-04-25",
+      "label": "Apr 25",
+      "wins": 4,
+      "losses": 2,
+      "pushes": 0,
+      "record": "4-2",
+      "picks": 6,
+      "win_pct": 66.7
+    },
+    {
+      "date": "2026-04-26",
+      "label": "Apr 26",
+      "wins": 6,
+      "losses": 5,
+      "pushes": 0,
+      "record": "6-5",
+      "picks": 11,
+      "win_pct": 54.5
+    },
+    {
+      "date": "2026-04-27",
+      "label": "Apr 27",
+      "wins": 1,
+      "losses": 1,
+      "pushes": 0,
+      "record": "1-1",
+      "picks": 2,
+      "win_pct": 50.0
+    },
+    {
+      "date": "2026-04-28",
+      "label": "Apr 28",
+      "wins": 7,
+      "losses": 2,
+      "pushes": 0,
+      "record": "7-2",
+      "picks": 9,
+      "win_pct": 77.8
+    },
+    {
+      "date": "2026-04-29",
+      "label": "Apr 29",
+      "wins": 4,
+      "losses": 2,
+      "pushes": 1,
+      "record": "4-2-1",
+      "picks": 7,
+      "win_pct": 66.7
+    },
+    {
+      "date": "2026-04-30",
+      "label": "Apr 30",
+      "wins": 5,
+      "losses": 0,
+      "pushes": 1,
+      "record": "5-0-1",
+      "picks": 6,
+      "win_pct": 100.0
+    },
+    {
+      "date": "2026-05-01",
+      "label": "May 1",
+      "wins": 8,
+      "losses": 1,
+      "pushes": 0,
+      "record": "8-1",
+      "picks": 9,
+      "win_pct": 88.9
+    },
+    {
+      "date": "2026-05-02",
+      "label": "May 2",
+      "wins": 7,
+      "losses": 4,
+      "pushes": 1,
+      "record": "7-4-1",
+      "picks": 12,
+      "win_pct": 63.6
+    },
+    {
+      "date": "2026-05-03",
+      "label": "May 3",
+      "wins": 3,
+      "losses": 4,
+      "pushes": 0,
+      "record": "3-4",
+      "picks": 7,
+      "win_pct": 42.9
+    },
+    {
+      "date": "2026-05-04",
+      "label": "May 4",
+      "wins": 2,
+      "losses": 2,
+      "pushes": 0,
+      "record": "2-2",
+      "picks": 4,
+      "win_pct": 50.0
+    }
+  ],
+  "by_pick_type": {
+    "OVER": {
+      "wins": 27,
+      "losses": 15,
+      "pushes": 0,
+      "record": "27-15",
+      "picks": 42,
+      "win_pct": 64.3
+    },
+    "UNDER": {
+      "wins": 26,
+      "losses": 14,
+      "pushes": 0,
+      "record": "26-14",
+      "picks": 40,
+      "win_pct": 65.0
+    }
+  },
+  "by_confidence": {
+    "Low": {
+      "wins": 16,
+      "losses": 9,
+      "pushes": 0,
+      "record": "16-9",
+      "picks": 25,
+      "win_pct": 64.0
+    },
+    "Medium": {
+      "wins": 28,
+      "losses": 14,
+      "pushes": 1,
+      "record": "28-14-1",
+      "picks": 43,
+      "win_pct": 66.7
+    },
+    "High": {
+      "wins": 9,
+      "losses": 6,
+      "pushes": 2,
+      "record": "9-6-2",
+      "picks": 17,
+      "win_pct": 60.0
+    }
+  },
+  "overall": {
+    "wins": 53,
+    "losses": 29,
+    "pushes": 3,
+    "record": "53-29-3",
+    "picks": 85,
+    "win_pct": 64.6,
+    "units": 21.1,
+    "roi_pct": 25.7
+  }
+}
