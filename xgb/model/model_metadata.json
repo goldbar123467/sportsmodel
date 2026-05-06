@@ -1,11 +1,18 @@
 {
-  "trained_at": "2026-05-06T01:52:31.082717",
+  "trained_at": "2026-05-06T02:51:44.996183",
   "train_games": 3692,
-  "test_games": 909,
+  "test_games": 916,
   "train_date_range": "2024-04-25 00:00:00 \u2192 2025-08-24 00:00:00",
   "test_date_range": "2025-08-25 00:00:00 \u2192 2026-05-05 00:00:00",
   "features": [
     "park_factor",
+    "weather_temp_f",
+    "weather_wind_mph",
+    "weather_wind_dir_degrees",
+    "weather_wind_out_cf",
+    "weather_humidity_pct",
+    "weather_precip_pct",
+    "weather_pressure_mb",
     "away_avg",
     "away_obp",
     "away_slg",
@@ -108,6 +115,18 @@
     "altitude_effect",
     "is_domed",
     "cf_bearing_norm",
+    "weather_temp_filled",
+    "weather_wind_mph_filled",
+    "weather_wind_out_cf_filled",
+    "weather_humidity_pct_filled",
+    "weather_precip_pct_filled",
+    "weather_pressure_mb_filled",
+    "weather_wind_run_factor",
+    "weather_heat_factor",
+    "weather_humidity_factor",
+    "weather_precip_factor",
+    "weather_pressure_factor",
+    "weather_run_environment",
     "away_starter_workload",
     "home_starter_workload",
     "diff_workload",
@@ -134,11 +153,11 @@
     "random_state": 42
   },
   "metrics": {
-    "mae": 3.4714,
-    "rmse": 4.4226,
-    "r2": 0.0298,
-    "naive_mae": 3.5942,
-    "market_mae": 3.4521
+    "mae": 3.4684,
+    "rmse": 4.4188,
+    "r2": 0.0318,
+    "naive_mae": 3.5986,
+    "market_mae": 3.4531
   },
   "leakage_policy": {
     "temporal_joins": "ASOF joins require source stat dates strictly before game date",
@@ -155,14 +174,14 @@
   },
   "top_features": [
     "home_starter_era",
-    "combined_starter_era",
     "away_starter_ip",
+    "combined_starter_era",
     "away_bb_rate",
     "combined_obp",
     "diff_bb_rate",
     "home_team_xwoba",
     "away_ps_brl",
-    "diff_ps_ev",
+    "away_starter_era",
     "away_pen_fb_spin"
   ]
 }

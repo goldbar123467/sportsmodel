@@ -8,6 +8,7 @@
     "home_pitcher": "Shane McClanahan",
     "away_pitcher_id": 571578,
     "home_pitcher_id": 663556,
+    "game_time_utc": "2026-05-06T17:10:00Z",
     "venue": "Tropicana Field",
     "status": "Preview",
     "away_score": null,
@@ -149,6 +150,19 @@
       "cfBearing": 45,
       "roof": true,
       "altitude": 10
+    },
+    "weather": {
+      "weather_temp_f": 72.0,
+      "weather_wind_mph": 0.0,
+      "weather_wind_dir_degrees": null,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 50.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": 1013.25,
+      "weather_is_indoor": true,
+      "weather_source": "indoor",
+      "weather_station": null,
+      "weather_observed_at": null
     }
   },
   {
@@ -160,6 +174,7 @@
     "home_pitcher": "Andre Pallante",
     "away_pitcher_id": 687075,
     "home_pitcher_id": 669467,
+    "game_time_utc": "2026-05-06T17:15:00Z",
     "venue": "Busch Stadium",
     "status": "Preview",
     "away_score": null,
@@ -301,6 +316,19 @@
       "cfBearing": 60,
       "roof": false,
       "altitude": 500
+    },
+    "weather": {
+      "weather_temp_f": 56.0,
+      "weather_wind_mph": 8.0,
+      "weather_wind_dir_degrees": 0.0,
+      "weather_wind_out_cf": -0.5,
+      "weather_humidity_pct": 62.0,
+      "weather_precip_pct": 12.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T12:00:00-05:00"
     }
   },
   {
@@ -312,6 +340,7 @@
     "home_pitcher": "Lance McCullers Jr.",
     "away_pitcher_id": 607192,
     "home_pitcher_id": 621121,
+    "game_time_utc": "2026-05-06T18:10:00Z",
     "venue": "Daikin Park",
     "status": "Preview",
     "away_score": null,
@@ -453,6 +482,19 @@
       "cfBearing": 345,
       "roof": true,
       "altitude": 50
+    },
+    "weather": {
+      "weather_temp_f": 72.0,
+      "weather_wind_mph": 0.0,
+      "weather_wind_dir_degrees": null,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 50.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": 1013.25,
+      "weather_is_indoor": true,
+      "weather_source": "indoor",
+      "weather_station": null,
+      "weather_observed_at": null
     }
   },
   {
@@ -464,6 +506,7 @@
     "home_pitcher": "Adrian Houser",
     "away_pitcher_id": 663362,
     "home_pitcher_id": 605288,
+    "game_time_utc": "2026-05-06T19:45:00Z",
     "venue": "Oracle Park",
     "status": "Preview",
     "away_score": null,
@@ -605,6 +648,19 @@
       "cfBearing": 90,
       "roof": false,
       "altitude": 20
+    },
+    "weather": {
+      "weather_temp_f": 59.0,
+      "weather_wind_mph": 5.0,
+      "weather_wind_dir_degrees": 270.0,
+      "weather_wind_out_cf": 1.0,
+      "weather_humidity_pct": 87.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T12:00:00-07:00"
     }
   },
   {
@@ -616,6 +672,7 @@
     "home_pitcher": "Walbert Ure\u00f1a",
     "away_pitcher_id": 702273,
     "home_pitcher_id": 700712,
+    "game_time_utc": "2026-05-06T20:07:00Z",
     "venue": "Angel Stadium",
     "status": "Preview",
     "away_score": null,
@@ -757,6 +814,19 @@
       "cfBearing": 45,
       "roof": false,
       "altitude": 100
+    },
+    "weather": {
+      "weather_temp_f": 71.0,
+      "weather_wind_mph": 10.0,
+      "weather_wind_dir_degrees": 225.0,
+      "weather_wind_out_cf": 1.0,
+      "weather_humidity_pct": 56.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T13:00:00-07:00"
     }
   },
   {
@@ -768,6 +838,7 @@
     "home_pitcher": "Bryan Woo",
     "away_pitcher_id": 656550,
     "home_pitcher_id": 693433,
+    "game_time_utc": "2026-05-06T20:10:00Z",
     "venue": "T-Mobile Park",
     "status": "Preview",
     "away_score": null,
@@ -909,6 +980,19 @@
       "cfBearing": 50,
       "roof": true,
       "altitude": 10
+    },
+    "weather": {
+      "weather_temp_f": 72.0,
+      "weather_wind_mph": 0.0,
+      "weather_wind_dir_degrees": null,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 50.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": 1013.25,
+      "weather_is_indoor": true,
+      "weather_source": "indoor",
+      "weather_station": null,
+      "weather_observed_at": null
     }
   },
   {
@@ -920,6 +1004,7 @@
     "home_pitcher": "Jack Flaherty",
     "away_pitcher_id": 543243,
     "home_pitcher_id": 656427,
+    "game_time_utc": "2026-05-06T22:40:00Z",
     "venue": "Comerica Park",
     "status": "Preview",
     "away_score": null,
@@ -1061,6 +1146,19 @@
       "cfBearing": 150,
       "roof": false,
       "altitude": 600
+    },
+    "weather": {
+      "weather_temp_f": 58.0,
+      "weather_wind_mph": 8.0,
+      "weather_wind_dir_degrees": 292.5,
+      "weather_wind_out_cf": 0.793,
+      "weather_humidity_pct": 40.0,
+      "weather_precip_pct": 5.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T18:00:00-04:00"
     }
   },
   {
@@ -1072,6 +1170,7 @@
     "home_pitcher": "Zack Wheeler",
     "away_pitcher_id": 605488,
     "home_pitcher_id": 554430,
+    "game_time_utc": "2026-05-06T22:40:00Z",
     "venue": "Citizens Bank Park",
     "status": "Preview",
     "away_score": null,
@@ -1199,6 +1298,19 @@
       "cfBearing": 12,
       "roof": false,
       "altitude": 30
+    },
+    "weather": {
+      "weather_temp_f": 73.0,
+      "weather_wind_mph": 10.0,
+      "weather_wind_dir_degrees": 225.0,
+      "weather_wind_out_cf": 0.839,
+      "weather_humidity_pct": 66.0,
+      "weather_precip_pct": 30.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T18:00:00-04:00"
     }
   },
   {
@@ -1210,6 +1322,7 @@
     "home_pitcher": "Eury P\u00e9rez",
     "away_pitcher_id": 687064,
     "home_pitcher_id": 691587,
+    "game_time_utc": "2026-05-06T22:40:00Z",
     "venue": "loanDepot park",
     "status": "Preview",
     "away_score": null,
@@ -1337,6 +1450,19 @@
       "cfBearing": 40,
       "roof": true,
       "altitude": 10
+    },
+    "weather": {
+      "weather_temp_f": 72.0,
+      "weather_wind_mph": 0.0,
+      "weather_wind_dir_degrees": null,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 50.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": 1013.25,
+      "weather_is_indoor": true,
+      "weather_source": "indoor",
+      "weather_station": null,
+      "weather_observed_at": null
     }
   },
   {
@@ -1348,6 +1474,7 @@
     "home_pitcher": "Miles Mikolas",
     "away_pitcher_id": 641927,
     "home_pitcher_id": 571945,
+    "game_time_utc": "2026-05-06T22:45:00Z",
     "venue": "Nationals Park",
     "status": "Preview",
     "away_score": null,
@@ -1489,6 +1616,19 @@
       "cfBearing": 30,
       "roof": false,
       "altitude": 10
+    },
+    "weather": {
+      "weather_temp_f": 76.0,
+      "weather_wind_mph": 9.0,
+      "weather_wind_dir_degrees": 225.0,
+      "weather_wind_out_cf": 0.966,
+      "weather_humidity_pct": 62.0,
+      "weather_precip_pct": 69.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T18:00:00-04:00"
     }
   },
   {
@@ -1500,6 +1640,7 @@
     "home_pitcher": "Will Warren",
     "away_pitcher_id": 543135,
     "home_pitcher_id": 701542,
+    "game_time_utc": "2026-05-06T23:05:00Z",
     "venue": "Yankee Stadium",
     "status": "Preview",
     "away_score": null,
@@ -1641,6 +1782,19 @@
       "cfBearing": 75,
       "roof": false,
       "altitude": 50
+    },
+    "weather": {
+      "weather_temp_f": 67.0,
+      "weather_wind_mph": 12.0,
+      "weather_wind_dir_degrees": 180.0,
+      "weather_wind_out_cf": 0.259,
+      "weather_humidity_pct": 65.0,
+      "weather_precip_pct": 78.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T19:00:00-04:00"
     }
   },
   {
@@ -1652,6 +1806,7 @@
     "home_pitcher": "Colin Rea",
     "away_pitcher_id": 663903,
     "home_pitcher_id": 607067,
+    "game_time_utc": "2026-05-06T23:40:00Z",
     "venue": "Wrigley Field",
     "status": "Preview",
     "away_score": null,
@@ -1793,6 +1948,19 @@
       "cfBearing": 36,
       "roof": false,
       "altitude": 600
+    },
+    "weather": {
+      "weather_temp_f": 49.0,
+      "weather_wind_mph": 10.0,
+      "weather_wind_dir_degrees": 22.5,
+      "weather_wind_out_cf": -0.972,
+      "weather_humidity_pct": 51.0,
+      "weather_precip_pct": 1.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T18:00:00-05:00"
     }
   },
   {
@@ -1804,6 +1972,7 @@
     "home_pitcher": "Cole Ragans",
     "away_pitcher_id": 676282,
     "home_pitcher_id": 666142,
+    "game_time_utc": "2026-05-06T23:40:00Z",
     "venue": "Kauffman Stadium",
     "status": "Preview",
     "away_score": null,
@@ -1945,6 +2114,19 @@
       "cfBearing": 45,
       "roof": false,
       "altitude": 750
+    },
+    "weather": {
+      "weather_temp_f": 57.0,
+      "weather_wind_mph": 7.0,
+      "weather_wind_dir_degrees": 0.0,
+      "weather_wind_out_cf": -0.707,
+      "weather_humidity_pct": 43.0,
+      "weather_precip_pct": 4.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T18:00:00-05:00"
     }
   },
   {
@@ -1956,6 +2138,7 @@
     "home_pitcher": "Michael Lorenzen",
     "away_pitcher_id": 642547,
     "home_pitcher_id": 547179,
+    "game_time_utc": "2026-05-07T01:20:00Z",
     "venue": "Coors Field",
     "status": "Preview",
     "away_score": null,
@@ -2097,6 +2280,19 @@
       "cfBearing": 0,
       "roof": false,
       "altitude": 5200
+    },
+    "weather": {
+      "weather_temp_f": 35.0,
+      "weather_wind_mph": 3.0,
+      "weather_wind_dir_degrees": 270.0,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 75.0,
+      "weather_precip_pct": 24.0,
+      "weather_pressure_mb": null,
+      "weather_is_indoor": false,
+      "weather_source": "api.weather.gov:forecastHourly",
+      "weather_station": null,
+      "weather_observed_at": "2026-05-06T19:00:00-06:00"
     }
   },
   {
@@ -2108,6 +2304,7 @@
     "home_pitcher": "Michael Soroka",
     "away_pitcher_id": 694973,
     "home_pitcher_id": 647336,
+    "game_time_utc": "2026-05-07T01:40:00Z",
     "venue": "Chase Field",
     "status": "Preview",
     "away_score": null,
@@ -2249,6 +2446,19 @@
       "cfBearing": 23,
       "roof": true,
       "altitude": 1050
+    },
+    "weather": {
+      "weather_temp_f": 72.0,
+      "weather_wind_mph": 0.0,
+      "weather_wind_dir_degrees": null,
+      "weather_wind_out_cf": 0.0,
+      "weather_humidity_pct": 50.0,
+      "weather_precip_pct": 0.0,
+      "weather_pressure_mb": 1013.25,
+      "weather_is_indoor": true,
+      "weather_source": "indoor",
+      "weather_station": null,
+      "weather_observed_at": null
     }
   }
 ]

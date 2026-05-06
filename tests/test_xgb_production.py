@@ -1,5 +1,6 @@
 import sys
 import unittest
+import importlib
 from pathlib import Path
 
 import pandas as pd
@@ -12,6 +13,14 @@ import scrape  # noqa: E402
 import train  # noqa: E402
 import pick_today  # noqa: E402
 import recordkeeping  # noqa: E402
+from db import Database  # noqa: E402
+
+
+def import_weather_module():
+    try:
+        return importlib.import_module("weather")
+    except ModuleNotFoundError as exc:
+        raise AssertionError("xgb/weather.py must provide the api.weather.gov integration") from exc
 
 
 class FakeResponse:
@@ -32,6 +41,18 @@ class FakeSession:
     def get(self, url, **kwargs):
         self.calls.append({"url": url, **kwargs})
         return FakeResponse(self.payload)
+
+
+class QueuedSession:
+    def __init__(self, payloads):
+        self.payloads = list(payloads)
+        self.calls = []
+
+    def get(self, url, **kwargs):
+        self.calls.append({"url": url, **kwargs})
+        if not self.payloads:
+            return FakeResponse({}, status_code=404)
+        return FakeResponse(self.payloads.pop(0))
 
 
 class XgbProductionTests(unittest.TestCase):
@@ -225,6 +246,255 @@ class XgbProductionTests(unittest.TestCase):
         self.assertIn("0 11 * * *", cron)
         self.assertIn("daily MLB Telegram cycle", cron)
         self.assertNotIn("55 9 * * *", cron)
+
+    def test_nws_observation_weather_uses_headers_and_normalizes_units(self):
+        weather = import_weather_module()
+        session = QueuedSession(
+            [
+                {
+                    "properties": {
+                        "observationStations": "https://api.weather.gov/gridpoints/BOX/70,76/stations",
+                    }
+                },
+                {
+                    "features": [
+                        {"id": "https://api.weather.gov/stations/KBOS"},
+                    ]
+                },
+                {
+                    "features": [
+                        {
+                            "properties": {
+                                "timestamp": "2026-05-06T23:54:00+00:00",
+                                "temperature": {"value": 16.1, "unitCode": "wmoUnit:degC"},
+                                "windSpeed": {"value": 19.0, "unitCode": "wmoUnit:km_h"},
+                                "windDirection": {"value": 226.0, "unitCode": "wmoUnit:degree_(angle)"},
+                                "relativeHumidity": {"value": 64.0, "unitCode": "wmoUnit:percent"},
+                                "barometricPressure": {"value": 101220.0, "unitCode": "wmoUnit:Pa"},
+                            }
+                        }
+                    ]
+                },
+            ]
+        )
+        game = {
+            "game_pk": 1,
+            "date": "2026-05-06",
+            "game_time_utc": "2026-05-06T23:35:00Z",
+            "home_team": "BOS",
+        }
+        stadium = {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46}
+
+        result = weather.fetch_weather_for_game(
+            game,
+            stadium,
+            session=session,
+            now_utc="2026-05-07T04:00:00Z",
+        )
+
+        self.assertEqual(result["weather_source"], "api.weather.gov:observations")
+        self.assertEqual(result["weather_station"], "KBOS")
+        self.assertAlmostEqual(result["weather_temp_f"], 61.0, places=1)
+        self.assertAlmostEqual(result["weather_wind_mph"], 11.8, places=1)
+        self.assertAlmostEqual(result["weather_wind_out_cf"], 1.0, places=2)
+        self.assertEqual(result["weather_humidity_pct"], 64.0)
+        self.assertAlmostEqual(result["weather_pressure_mb"], 1012.2, places=1)
+        self.assertFalse(result["weather_is_indoor"])
+
+        self.assertTrue(session.calls[0]["url"].startswith("https://api.weather.gov/points/"))
+        self.assertTrue(session.calls[2]["url"].endswith("/stations/KBOS/observations"))
+        for call in session.calls:
+            self.assertIn("User-Agent", call["headers"])
+            self.assertNotIn("apiKey", call.get("params") or {})
+
+    def test_nws_hourly_forecast_weather_is_used_for_future_games(self):
+        weather = import_weather_module()
+        session = QueuedSession(
+            [
+                {
+                    "properties": {
+                        "forecastHourly": "https://api.weather.gov/gridpoints/BOX/70,76/forecast/hourly",
+                    }
+                },
+                {
+                    "properties": {
+                        "periods": [
+                            {
+                                "startTime": "2026-05-06T22:00:00+00:00",
+                                "temperature": 70,
+                                "temperatureUnit": "F",
+                                "windSpeed": "8 mph",
+                                "windDirection": "W",
+                                "relativeHumidity": {"value": 50},
+                                "probabilityOfPrecipitation": {"value": 10},
+                            },
+                            {
+                                "startTime": "2026-05-06T23:00:00+00:00",
+                                "temperature": 59,
+                                "temperatureUnit": "F",
+                                "windSpeed": "12 mph",
+                                "windDirection": "SW",
+                                "relativeHumidity": {"value": 72},
+                                "probabilityOfPrecipitation": {"value": 20},
+                            },
+                        ]
+                    }
+                },
+            ]
+        )
+
+        result = weather.fetch_weather_for_game(
+            {
+                "game_pk": 2,
+                "date": "2026-05-06",
+                "game_time_utc": "2026-05-06T23:35:00Z",
+                "home_team": "BOS",
+            },
+            {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46},
+            session=session,
+            now_utc="2026-05-06T15:00:00Z",
+        )
+
+        self.assertEqual(result["weather_source"], "api.weather.gov:forecastHourly")
+        self.assertEqual(result["weather_temp_f"], 59.0)
+        self.assertEqual(result["weather_wind_mph"], 12.0)
+        self.assertEqual(result["weather_humidity_pct"], 72.0)
+        self.assertEqual(result["weather_precip_pct"], 20.0)
+
+    def test_game_weather_is_persisted_in_duckdb(self):
+        db_path = Path("/tmp/sportsbotv2_weather_test.duckdb")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2026-05-06",
+                    "game_pk": 1001,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "venue": "Fenway Park",
+                    "status": "Final",
+                    "away_score": 4,
+                    "home_score": 5,
+                    "total_runs": 9,
+                    "game_time_utc": "2026-05-06T23:35:00Z",
+                    "stadium": {
+                        "name": "Fenway Park",
+                        "roof": False,
+                        "altitude": 10,
+                        "cfBearing": 46,
+                    },
+                    "weather": {
+                        "weather_temp_f": 61.0,
+                        "weather_wind_mph": 11.8,
+                        "weather_wind_dir_degrees": 226.0,
+                        "weather_wind_out_cf": 1.0,
+                        "weather_humidity_pct": 64.0,
+                        "weather_precip_pct": 20.0,
+                        "weather_pressure_mb": 1012.2,
+                        "weather_is_indoor": False,
+                        "weather_source": "api.weather.gov:observations",
+                        "weather_station": "KBOS",
+                        "weather_observed_at": "2026-05-06T23:54:00+00:00",
+                    },
+                }
+            )
+            row = db.query(
+                """
+                SELECT game_time_utc, weather_temp_f, weather_wind_mph,
+                       weather_wind_out_cf, weather_source, weather_station
+                FROM games WHERE game_pk = 1001
+                """
+            )[0]
+        finally:
+            db.close()
+            if db_path.exists():
+                db_path.unlink()
+
+        self.assertEqual(row["weather_temp_f"], 61.0)
+        self.assertEqual(row["weather_wind_mph"], 11.8)
+        self.assertEqual(row["weather_wind_out_cf"], 1.0)
+        self.assertEqual(row["weather_source"], "api.weather.gov:observations")
+        self.assertEqual(row["weather_station"], "KBOS")
+
+    def test_weather_features_are_available_to_the_model_with_indoor_neutralization(self):
+        df = pd.DataFrame(
+            {
+                "stadium_roof": [False, True],
+                "stadium_cf_bearing": [46, 46],
+                "weather_temp_f": [82.0, 95.0],
+                "weather_wind_mph": [12.0, 20.0],
+                "weather_wind_out_cf": [1.0, -1.0],
+                "weather_humidity_pct": [70.0, 90.0],
+                "weather_precip_pct": [30.0, 60.0],
+                "weather_pressure_mb": [1010.0, 990.0],
+                "weather_is_indoor": [False, True],
+                "total_runs": [9, 8],
+            }
+        )
+
+        out = train.add_weather_features(df)
+        feature_cols = train.get_feature_cols(out)
+
+        self.assertIn("weather_temp_filled", feature_cols)
+        self.assertIn("weather_wind_mph_filled", feature_cols)
+        self.assertIn("weather_run_environment", feature_cols)
+        self.assertEqual(out.loc[1, "weather_temp_filled"], 72.0)
+        self.assertEqual(out.loc[1, "weather_wind_mph_filled"], 0.0)
+        self.assertEqual(out.loc[1, "weather_wind_run_factor"], 0.0)
+
+    def test_backfill_marks_stale_nws_observations_unavailable_without_api_calling(self):
+        weather = import_weather_module()
+        db_path = Path("/tmp/sportsbotv2_weather_stale_test.duckdb")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2024-04-25",
+                    "game_pk": 2001,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "game_time_utc": "2024-04-25T23:10:00Z",
+                    "venue": "Fenway Park",
+                    "status": "Final",
+                    "away_score": 4,
+                    "home_score": 5,
+                    "total_runs": 9,
+                    "stadium": {
+                        "name": "Fenway Park",
+                        "roof": False,
+                        "altitude": 10,
+                        "cfBearing": 46,
+                    },
+                }
+            )
+        finally:
+            db.close()
+
+        session = QueuedSession([])
+        result = weather.backfill_weather(
+            db_path=db_path,
+            start_date="2024-04-25",
+            end_date="2024-04-25",
+            max_observation_age_days=14,
+            now_utc="2026-05-06T00:00:00Z",
+            sleep_s=0,
+            session=session,
+        )
+        db = Database(db_path)
+        try:
+            row = db.query("SELECT weather_source FROM games WHERE game_pk = 2001")[0]
+        finally:
+            db.close()
+            if db_path.exists():
+                db_path.unlink()
+
+        self.assertEqual(result["unavailable"], 1)
+        self.assertEqual(row["weather_source"], "api.weather.gov:observations:unavailable")
+        self.assertEqual(session.calls, [])
 
 
 if __name__ == "__main__":

@@ -20,6 +20,21 @@ import duckdb
 SCRIPT_DIR = Path(__file__).parent
 DB_PATH = SCRIPT_DIR / 'mlb.duckdb'
 
+GAME_WEATHER_COLUMNS = {
+    'game_time_utc': 'TIMESTAMP',
+    'weather_temp_f': 'DOUBLE',
+    'weather_wind_mph': 'DOUBLE',
+    'weather_wind_dir_degrees': 'DOUBLE',
+    'weather_wind_out_cf': 'DOUBLE',
+    'weather_humidity_pct': 'DOUBLE',
+    'weather_precip_pct': 'DOUBLE',
+    'weather_pressure_mb': 'DOUBLE',
+    'weather_is_indoor': 'BOOLEAN',
+    'weather_source': 'VARCHAR',
+    'weather_station': 'VARCHAR',
+    'weather_observed_at': 'TIMESTAMP',
+}
+
 
 class Database:
     def __init__(self, db_path=None):
@@ -39,6 +54,7 @@ class Database:
                 home_pitcher   VARCHAR,
                 away_pitcher_id INTEGER,
                 home_pitcher_id INTEGER,
+                game_time_utc  TIMESTAMP,
                 venue          VARCHAR,
                 status         VARCHAR,
                 away_score     INTEGER,
@@ -49,9 +65,21 @@ class Database:
                 stadium_roof   BOOLEAN,
                 stadium_alt    INTEGER,
                 stadium_cf_bearing INTEGER,
+                weather_temp_f DOUBLE,
+                weather_wind_mph DOUBLE,
+                weather_wind_dir_degrees DOUBLE,
+                weather_wind_out_cf DOUBLE,
+                weather_humidity_pct DOUBLE,
+                weather_precip_pct DOUBLE,
+                weather_pressure_mb DOUBLE,
+                weather_is_indoor BOOLEAN,
+                weather_source VARCHAR,
+                weather_station VARCHAR,
+                weather_observed_at TIMESTAMP,
                 created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
+        self._ensure_columns('games', GAME_WEATHER_COLUMNS)
 
         self.conn.execute("""
             CREATE TABLE IF NOT EXISTS team_hitting (
@@ -223,6 +251,16 @@ class Database:
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_pred_date ON predictions(date)")
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_results_date ON results(date)")
 
+    def _ensure_columns(self, table, columns):
+        """Add nullable columns for existing DuckDB files."""
+        existing = {
+            row[1]
+            for row in self.conn.execute(f"PRAGMA table_info('{table}')").fetchall()
+        }
+        for name, sql_type in columns.items():
+            if name not in existing:
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {sql_type}")
+
     # ─── Ingest ──────────────────────────────────────────────────────────
 
     def ingest_game(self, record):
@@ -232,22 +270,46 @@ class Database:
         if not date or not game_pk:
             return
 
-        # Games table
         stadium = record.get('stadium', {})
-        self.conn.execute("""
-            INSERT OR REPLACE INTO games (game_pk, date, away_team, home_team, away_pitcher, home_pitcher, away_pitcher_id, home_pitcher_id, venue, status, away_score, home_score, total_runs, park_factor, stadium_name, stadium_roof, stadium_alt, stadium_cf_bearing) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, [
+        weather = record.get('weather', {}) or {}
+        game_cols = [
+            'game_pk', 'date', 'away_team', 'home_team',
+            'away_pitcher', 'home_pitcher',
+            'away_pitcher_id', 'home_pitcher_id',
+            'game_time_utc', 'venue', 'status',
+            'away_score', 'home_score', 'total_runs',
+            'park_factor', 'stadium_name', 'stadium_roof',
+            'stadium_alt', 'stadium_cf_bearing',
+            'weather_temp_f', 'weather_wind_mph',
+            'weather_wind_dir_degrees', 'weather_wind_out_cf',
+            'weather_humidity_pct', 'weather_precip_pct',
+            'weather_pressure_mb', 'weather_is_indoor',
+            'weather_source', 'weather_station', 'weather_observed_at',
+        ]
+        game_values = [
             game_pk, date,
             record.get('away_team', ''), record.get('home_team', ''),
             record.get('away_pitcher', ''), record.get('home_pitcher', ''),
             record.get('away_pitcher_id'), record.get('home_pitcher_id'),
+            record.get('game_time_utc'),
             record.get('venue', ''), record.get('status', ''),
             record.get('away_score'), record.get('home_score'),
             record.get('total_runs'),
             record.get('park_factor', 1.0),
             stadium.get('name', ''), stadium.get('roof', False),
             stadium.get('altitude', 0), stadium.get('cfBearing', 0),
-        ])
+            weather.get('weather_temp_f'), weather.get('weather_wind_mph'),
+            weather.get('weather_wind_dir_degrees'), weather.get('weather_wind_out_cf'),
+            weather.get('weather_humidity_pct'), weather.get('weather_precip_pct'),
+            weather.get('weather_pressure_mb'), weather.get('weather_is_indoor'),
+            weather.get('weather_source'), weather.get('weather_station'),
+            weather.get('weather_observed_at'),
+        ]
+        placeholders = ', '.join(['?'] * len(game_cols))
+        self.conn.execute(
+            f"INSERT OR REPLACE INTO games ({', '.join(game_cols)}) VALUES ({placeholders})",
+            game_values,
+        )
 
         # Team hitting
         for side in ('away', 'home'):
@@ -341,6 +403,17 @@ class Database:
             odds_data.get('away_spread_odds'), odds_data.get('home_spread_odds'),
             json.dumps(odds_data.get('raw', {})),
         ])
+
+    def update_game_weather(self, game_pk, weather):
+        """Update weather fields for an existing game."""
+        cols = [c for c in GAME_WEATHER_COLUMNS if c != 'game_time_utc']
+        assignments = ', '.join([f'{c} = ?' for c in cols])
+        values = [weather.get(c) for c in cols]
+        values.append(game_pk)
+        self.conn.execute(
+            f"UPDATE games SET {assignments} WHERE game_pk = ?",
+            values,
+        )
 
     def ingest_prediction(self, date, game_pk, away_team, home_team,
                           model_total, odds_total, edge, confidence,

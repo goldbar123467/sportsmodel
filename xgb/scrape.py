@@ -29,6 +29,7 @@ import requests
 import pandas as pd
 
 from db import Database
+import weather as nws_weather
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
@@ -231,7 +232,18 @@ def ingest_odds_rows(db, date_str, game_records, odds_data):
     return matched
 
 
-def scrape_odds_only(date_str):
+def attach_weather(record):
+    """Attach NWS weather to a game record without breaking the scrape."""
+    stadium = record.get('stadium', {})
+    try:
+        record['weather'] = nws_weather.fetch_weather_for_game(record, stadium)
+    except Exception as e:
+        print(f"  ⚠️  Weather fetch failed for {record.get('game_pk')}: {e}")
+        record['weather'] = nws_weather.empty_weather('api.weather.gov:error')
+    return record
+
+
+def scrape_odds_only(date_str, include_weather=True):
     """Fetch today's schedule and Odds API totals, then persist them to DuckDB."""
     print(f'\n🗓️  Scraping Odds API totals for {date_str}...')
     games = fetch_schedule(date_str)
@@ -250,6 +262,7 @@ def scrape_odds_only(date_str):
             'home_pitcher': g['home_pitcher_name'],
             'away_pitcher_id': g['away_pitcher_id'],
             'home_pitcher_id': g['home_pitcher_id'],
+            'game_time_utc': g.get('game_time_utc'),
             'venue': g['venue'],
             'status': g['status'],
             'away_score': g['away_score'],
@@ -258,6 +271,8 @@ def scrape_odds_only(date_str):
             'park_factor': TEAMS_DATA.get('parkFactors', {}).get(g['home_team'], 1.0),
             'stadium': TEAMS_DATA.get('stadiums', {}).get(g['home_team'], {}),
         }
+        if include_weather:
+            attach_weather(record)
         game_records.append(record)
 
     odds_data = fetch_odds(date_str)
@@ -393,6 +408,7 @@ def fetch_schedule(date_str):
                 'away_pitcher_name': away_pitcher.get('fullName', 'TBD'),
                 'home_pitcher_id': home_pitcher.get('id'),
                 'home_pitcher_name': home_pitcher.get('fullName', 'TBD'),
+                'game_time_utc': g.get('gameDate'),
                 'venue': g.get('venue', {}).get('name', ''),
                 'status': status,
                 'away_score': away_score,
@@ -560,7 +576,7 @@ def aggregate_statcast_to_teams(batter_stats, pitcher_stats, rosters):
 
 # ─── Main scraper ────────────────────────────────────────────────────────────
 
-def scrape_date(date_str, season=2025):
+def scrape_date(date_str, season=2025, include_weather=True):
     """Scrape all data for a single date. Returns a list of game dicts."""
     print(f'\n🗓️  Scraping {date_str}...')
 
@@ -695,6 +711,7 @@ def scrape_date(date_str, season=2025):
             'home_pitcher': g['home_pitcher_name'],
             'away_pitcher_id': g['away_pitcher_id'],
             'home_pitcher_id': g['home_pitcher_id'],
+            'game_time_utc': g.get('game_time_utc'),
             'venue': g['venue'],
             'status': g['status'],
             'away_score': g['away_score'],
@@ -723,6 +740,8 @@ def scrape_date(date_str, season=2025):
             'park_factor': TEAMS_DATA.get('parkFactors', {}).get(g['home_team'], 1.0),
             'stadium': TEAMS_DATA.get('stadiums', {}).get(g['home_team'], {}),
         }
+        if include_weather:
+            attach_weather(record)
         game_records.append(record)
 
     # 8. Fetch odds for this date
@@ -746,11 +765,12 @@ def main():
     parser.add_argument('--backfill', type=int, help='Scrape last N days')
     parser.add_argument('--season', type=int, default=2025, help='Season year')
     parser.add_argument('--odds-only', action='store_true', help='Only fetch schedule + Odds API totals')
+    parser.add_argument('--skip-weather', action='store_true', help='Skip api.weather.gov game weather')
     args = parser.parse_args()
 
     if args.odds_only:
         date_str = args.date or datetime.now().strftime('%Y-%m-%d')
-        scrape_odds_only(date_str)
+        scrape_odds_only(date_str, include_weather=not args.skip_weather)
 
     elif args.backfill:
         # Scrape multiple dates
@@ -758,7 +778,7 @@ def main():
         today = datetime.now()
         for i in range(args.backfill, 0, -1):
             d = (today - timedelta(days=i)).strftime('%Y-%m-%d')
-            records = scrape_date(d, args.season)
+            records = scrape_date(d, args.season, include_weather=not args.skip_weather)
             all_records.extend(records)
             time.sleep(1)  # Be nice between dates
 
@@ -776,7 +796,7 @@ def main():
             print(f'  Avg total runs: {avg:.2f}')
 
     elif args.date:
-        records = scrape_date(args.date, args.season)
+        records = scrape_date(args.date, args.season, include_weather=not args.skip_weather)
         outfile = DATA_DIR / f'games_{args.date}.json'
         with open(outfile, 'w') as f:
             json.dump(records, f, indent=2)
@@ -785,7 +805,7 @@ def main():
     else:
         # Default: scrape today
         today = datetime.now().strftime('%Y-%m-%d')
-        records = scrape_date(today, args.season)
+        records = scrape_date(today, args.season, include_weather=not args.skip_weather)
         outfile = DATA_DIR / f'games_{today}.json'
         with open(outfile, 'w') as f:
             json.dump(records, f, indent=2)

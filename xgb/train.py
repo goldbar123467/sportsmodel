@@ -89,6 +89,59 @@ def safe_fill(series, fill_value=None):
     return series.fillna(LEAGUE_MEDIANS.get(series.name, 0))
 
 
+def _numeric_series(df, column, default):
+    if column in df.columns:
+        return pd.to_numeric(df[column], errors='coerce')
+    return pd.Series([default] * len(df), index=df.index, dtype='float64')
+
+
+def add_weather_features(df):
+    """Add model-ready weather features with neutral indoor defaults."""
+    df = df.copy()
+    if 'stadium_roof' in df.columns:
+        roof = df['stadium_roof'].fillna(False).astype(bool)
+    else:
+        roof = pd.Series([False] * len(df), index=df.index)
+    if 'weather_is_indoor' in df.columns:
+        indoor = df['weather_is_indoor'].fillna(False).astype(bool) | roof
+    else:
+        indoor = roof
+
+    temp = _numeric_series(df, 'weather_temp_f', 72.0).fillna(72.0)
+    wind = _numeric_series(df, 'weather_wind_mph', 0.0).fillna(0.0)
+    wind_out = _numeric_series(df, 'weather_wind_out_cf', 0.0).fillna(0.0)
+    humidity = _numeric_series(df, 'weather_humidity_pct', 50.0).fillna(50.0)
+    precip = _numeric_series(df, 'weather_precip_pct', 0.0).fillna(0.0)
+    pressure = _numeric_series(df, 'weather_pressure_mb', 1013.25).fillna(1013.25)
+
+    temp = temp.mask(indoor, 72.0)
+    wind = wind.mask(indoor, 0.0)
+    wind_out = wind_out.mask(indoor, 0.0)
+    humidity = humidity.mask(indoor, 50.0)
+    precip = precip.mask(indoor, 0.0)
+    pressure = pressure.mask(indoor, 1013.25)
+
+    df['weather_temp_filled'] = temp
+    df['weather_wind_mph_filled'] = wind
+    df['weather_wind_out_cf_filled'] = wind_out
+    df['weather_humidity_pct_filled'] = humidity
+    df['weather_precip_pct_filled'] = precip
+    df['weather_pressure_mb_filled'] = pressure
+    df['weather_wind_run_factor'] = wind * wind_out / 10.0
+    df['weather_heat_factor'] = (temp - 70.0) / 10.0
+    df['weather_humidity_factor'] = (humidity - 50.0) / 50.0
+    df['weather_precip_factor'] = precip / 100.0
+    df['weather_pressure_factor'] = (pressure - 1013.25) / 20.0
+    df['weather_run_environment'] = (
+        df['weather_heat_factor'] * 0.25
+        + df['weather_wind_run_factor'] * 0.35
+        + df['weather_humidity_factor'] * 0.10
+        - df['weather_precip_factor'] * 0.15
+        - df['weather_pressure_factor'] * 0.05
+    )
+    return df
+
+
 def build_feature_matrix(db: Database, start_date=None, end_date=None) -> pd.DataFrame:
     """
     Master feature builder. Joins all tables and computes tactician features.
@@ -113,6 +166,10 @@ def build_feature_matrix(db: Database, start_date=None, end_date=None) -> pd.Dat
             g.total_runs, g.away_score, g.home_score,
             g.park_factor, g.stadium_name, g.stadium_roof,
             g.stadium_alt, g.stadium_cf_bearing,
+            g.weather_temp_f, g.weather_wind_mph,
+            g.weather_wind_dir_degrees, g.weather_wind_out_cf,
+            g.weather_humidity_pct, g.weather_precip_pct,
+            g.weather_pressure_mb, g.weather_is_indoor,
 
             -- Team hitting (away)
             th_away.pa as away_pa, th_away.avg as away_avg, th_away.obp as away_obp,
@@ -368,6 +425,7 @@ def build_feature_matrix(db: Database, start_date=None, end_date=None) -> pd.Dat
 
     # CF bearing - wind direction matters (simplified: higher = more HR-friendly)
     df['cf_bearing_norm'] = df['stadium_cf_bearing'] / 360.0
+    df = add_weather_features(df)
 
     # ═══════════════════════════════════════════════════════════════════════
     # CATEGORY E: SITUATIONAL / TACTICIAN FEATURES
@@ -802,6 +860,10 @@ def predict_todays_games(model, db: Database, feature_cols, date_str=None, targe
             g.game_pk, g.date, g.away_team, g.home_team,
             g.park_factor, g.stadium_name, g.stadium_roof,
             g.stadium_alt, g.stadium_cf_bearing,
+            g.weather_temp_f, g.weather_wind_mph,
+            g.weather_wind_dir_degrees, g.weather_wind_out_cf,
+            g.weather_humidity_pct, g.weather_precip_pct,
+            g.weather_pressure_mb, g.weather_is_indoor,
             g.total_runs, g.away_score, g.home_score,
 
             -- Team hitting
@@ -1040,6 +1102,7 @@ def _apply_feature_engineering(df):
     df['altitude_effect'] = df['stadium_alt'] / 5280.0
     df['is_domed'] = df['stadium_roof'].astype(int)
     df['cf_bearing_norm'] = df['stadium_cf_bearing'] / 360.0
+    df = add_weather_features(df)
 
     # Market features (must match build_feature_matrix)
     if 'odds_total' not in df.columns:

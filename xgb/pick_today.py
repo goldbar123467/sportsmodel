@@ -95,6 +95,10 @@ def main():
             g.game_pk, g.date, g.away_team, g.home_team,
             g.park_factor, g.stadium_name, g.stadium_roof,
             g.stadium_alt, g.stadium_cf_bearing,
+            g.weather_temp_f, g.weather_wind_mph,
+            g.weather_wind_dir_degrees, g.weather_wind_out_cf,
+            g.weather_humidity_pct, g.weather_precip_pct,
+            g.weather_pressure_mb, g.weather_is_indoor,
             g.total_runs, g.away_score, g.home_score,
 
             th_away.avg as away_avg, th_away.obp as away_obp,
