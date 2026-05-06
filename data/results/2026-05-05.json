@@ -1,0 +1,943 @@
+{
+  "date": "2026-05-05",
+  "timestamp": "2026-05-05T15:30:58.039Z",
+  "games": [
+    {
+      "matchup": "BOS @ DET",
+      "away": "BOS",
+      "home": "DET",
+      "projected": 7.71,
+      "combined": 7.89,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.1231567796610165,
+          "fip": 4.5216426553672315,
+          "blended": 4.299195237813691,
+          "confidence": "low",
+          "ip": 17.7,
+          "source": "total",
+          "parkAdjusted": 4.041243523544869
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 3.366583541147132,
+          "fip": 3.2997506234413967,
+          "blended": 3.3755457616346938,
+          "confidence": "medium",
+          "ip": 40.1,
+          "source": "total",
+          "parkAdjusted": 3.173013015936612
+        },
+        "awayOffense": {
+          "multiplier": 0.8750597368864348,
+          "runsPerPA": 0.10675728790014505,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.2216184939956476,
+          "runsPerPA": 0.149037456267469,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.94,
+        "altitudeAdj": 0,
+        "totalPark": 0.94,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.18,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.4436979560938683,
+          "restDays": 0.42,
+          "platoon": -0.08
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "TOR @ TB",
+      "away": "TOR",
+      "home": "TB",
+      "projected": 6.96,
+      "combined": 7.1,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "high",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.5775,
+          "fip": 4.633376543209876,
+          "blended": 4.320011855329507,
+          "confidence": "medium",
+          "ip": 39.50000000000001,
+          "source": "road",
+          "parkAdjusted": 4.1472113811163265
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 2.6821192052980134,
+          "fip": 3.7298013245033115,
+          "blended": 3.354054976171319,
+          "confidence": "medium",
+          "ip": 30.2,
+          "source": "total",
+          "parkAdjusted": 3.2198927771244663
+        },
+        "awayOffense": {
+          "multiplier": 0.925041569206116,
+          "runsPerPA": 0.11285507144314615,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.9609571978984961,
+          "runsPerPA": 0.11723677814361652,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.96,
+        "altitudeAdj": 0,
+        "totalPark": 0.96,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.14,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.18250190403655747,
+          "restDays": 0.12,
+          "platoon": 0.12
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "ATH @ PHI",
+      "away": "ATH",
+      "home": "PHI",
+      "projected": 7.19,
+      "combined": 7.19,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "high",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.4295272020725385,
+          "fip": 4.173656735751296,
+          "blended": 4.294126941810635,
+          "confidence": "medium",
+          "ip": 37.400000000000006,
+          "source": "road",
+          "parkAdjusted": 4.422950750064954
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 3.069790955631399,
+          "fip": 3.312852389078498,
+          "blended": 3.1386286939895407,
+          "confidence": "medium",
+          "ip": 39.400000000000006,
+          "source": "home",
+          "parkAdjusted": 3.232787554809227
+        },
+        "awayOffense": {
+          "multiplier": 0.8651965569435401,
+          "runsPerPA": 0.1055539799471119,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.9940739190604897,
+          "runsPerPA": 0.12127701812537973,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1.03,
+        "altitudeAdj": 0,
+        "totalPark": 1.03,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.03887195121951202,
+          "restDays": -0.16,
+          "platoon": -0.16
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "BAL @ MIA",
+      "away": "BAL",
+      "home": "MIA",
+      "projected": 6.65,
+      "combined": 6.840000000000001,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 5.019530075187969,
+          "fip": 4.693770676691729,
+          "blended": 4.9239287297504,
+          "confidence": "low",
+          "ip": 26.599999999999998,
+          "source": "total",
+          "parkAdjusted": 4.530014431370368
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 2.941971649484536,
+          "fip": 3.961294673539519,
+          "blended": 3.7006038943511514,
+          "confidence": "medium",
+          "ip": 47.1,
+          "source": "home",
+          "parkAdjusted": 3.4045555828030594
+        },
+        "awayOffense": {
+          "multiplier": 0.8882760436320885,
+          "runsPerPA": 0.10836967732311478,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.7999737354724332,
+          "runsPerPA": 0.09759679572763685,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.92,
+        "altitudeAdj": 0,
+        "totalPark": 0.92,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.19,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.014521640091115992,
+          "restDays": 0,
+          "platoon": 0
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "MIN @ WSH",
+      "away": "MIN",
+      "home": "WSH",
+      "projected": 6.72,
+      "combined": 6.87,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.190943396226415,
+          "fip": 4.677509433962264,
+          "blended": 4.240419765683536,
+          "confidence": "medium",
+          "ip": 40.3,
+          "source": "road",
+          "parkAdjusted": 4.198015568026701
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.239724576271186,
+          "fip": 3.5192161016949153,
+          "blended": 3.540520614166328,
+          "confidence": "low",
+          "ip": 29.5,
+          "source": "total",
+          "parkAdjusted": 3.5051154080246647
+        },
+        "awayOffense": {
+          "multiplier": 0.8089031449536955,
+          "runsPerPA": 0.09868618368435085,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.9251703485121833,
+          "runsPerPA": 0.11287078251848635,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.99,
+        "altitudeAdj": 0,
+        "totalPark": 0.99,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.15,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.0064317673378074675,
+          "restDays": -0.04,
+          "platoon": -0.04
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "TEX @ NYY",
+      "away": "TEX",
+      "home": "NYY",
+      "projected": 7.84,
+      "combined": 7.75,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 2.072368421052632,
+          "fip": 2.9697368421052635,
+          "blended": 2.6336501814882034,
+          "confidence": "medium",
+          "ip": 30.4,
+          "source": "total",
+          "parkAdjusted": 2.6336501814882034
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.5,
+          "fip": 4.5,
+          "blended": 4.5,
+          "confidence": "low",
+          "ip": 4,
+          "source": "default",
+          "parkAdjusted": 4.5
+        },
+        "awayOffense": {
+          "multiplier": 0.8071205605640567,
+          "runsPerPA": 0.09846870838881491,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.5975770728508947,
+          "runsPerPA": 0.19490440288780914,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1,
+        "altitudeAdj": 0,
+        "totalPark": 1,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": -0.09,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.2118028279654359,
+          "restDays": -0.08000000000000002,
+          "platoon": 0.12
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "CIN @ CHC",
+      "away": "CIN",
+      "home": "CHC",
+      "projected": 10.92,
+      "combined": 11.55,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "high",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 6.17910447761194,
+          "fip": 5.050746268656717,
+          "blended": 5.5146935535090496,
+          "confidence": "medium",
+          "ip": 33.5,
+          "source": "total",
+          "parkAdjusted": 5.5146935535090496
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.405277777777777,
+          "fip": 4.729055555555555,
+          "blended": 4.891751138211381,
+          "confidence": "medium",
+          "ip": 34.2,
+          "source": "home",
+          "parkAdjusted": 4.891751138211381
+        },
+        "awayOffense": {
+          "multiplier": 0.980679156908665,
+          "runsPerPA": 0.11964285714285713,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.110917332554614,
+          "runsPerPA": 0.13553191457166291,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1,
+        "altitudeAdj": 0,
+        "totalPark": 1,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.63,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": 0.18878522467631392,
+          "restDays": 0.24,
+          "platoon": 0.24
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "CLE @ KC",
+      "away": "CLE",
+      "home": "KC",
+      "projected": 10.18,
+      "combined": 10.01,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.436413043478261,
+          "fip": 4.656847826086957,
+          "blended": 4.26220883152174,
+          "confidence": "medium",
+          "ip": 42.400000000000006,
+          "source": "road",
+          "parkAdjusted": 4.347453008152175
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.5,
+          "fip": 4.5,
+          "blended": 4.5,
+          "confidence": "low",
+          "ip": 0,
+          "source": "default",
+          "parkAdjusted": 4.59
+        },
+        "awayOffense": {
+          "multiplier": 0.965265963007024,
+          "runsPerPA": 0.11776244748685694,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.3222312884800829,
+          "runsPerPA": 0.16131221719457012,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1.02,
+        "altitudeAdj": 0,
+        "totalPark": 1.02,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": -0.17,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.09186522710349969,
+          "restDays": -0.28,
+          "platoon": -0.08
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "MIL @ STL",
+      "away": "MIL",
+      "home": "STL",
+      "projected": 9.6,
+      "combined": 9.32,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 5.520483870967742,
+          "fip": 5.3020645161290325,
+          "blended": 5.67215118053673,
+          "confidence": "low",
+          "ip": 24.800000000000004,
+          "source": "total",
+          "parkAdjusted": 5.558708156925995
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.610190397350994,
+          "fip": 4.511567880794702,
+          "blended": 4.4952747556493895,
+          "confidence": "medium",
+          "ip": 31.1,
+          "source": "home",
+          "parkAdjusted": 4.405369260536402
+        },
+        "awayOffense": {
+          "multiplier": 0.9617770068509224,
+          "runsPerPA": 0.11733679483581252,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.9653161686715335,
+          "runsPerPA": 0.11776857257792708,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.98,
+        "altitudeAdj": 0,
+        "totalPark": 0.98,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": -0.28,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.4755271084337349,
+          "restDays": 0,
+          "platoon": 0
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "LAD @ HOU",
+      "away": "LAD",
+      "home": "HOU",
+      "projected": 5.09,
+      "combined": 5.27,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 0.6,
+          "fip": 1.8333333333333335,
+          "blended": 1.4016666666666668,
+          "confidence": "medium",
+          "ip": 30,
+          "source": "total",
+          "parkAdjusted": 1.4016666666666668
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.382210264900663,
+          "fip": 4.190706953642384,
+          "blended": 3.760373443708609,
+          "confidence": "low",
+          "ip": 15.1,
+          "source": "total",
+          "parkAdjusted": 3.760373443708609
+        },
+        "awayOffense": {
+          "multiplier": 0.9953161592505854,
+          "runsPerPA": 0.12142857142857141,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.9611972131914486,
+          "runsPerPA": 0.11726606000935673,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1,
+        "altitudeAdj": 0,
+        "totalPark": 1,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.18,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": 0.17766075388026603,
+          "restDays": -0.2,
+          "platoon": -0.2
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "NYM @ COL",
+      "away": "NYM",
+      "home": "COL",
+      "projected": 10.59,
+      "combined": 10.48,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "high",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 3.678474114441417,
+          "fip": 3.635967302452316,
+          "blended": 3.643391280653951,
+          "confidence": "medium",
+          "ip": 36.7,
+          "source": "total",
+          "parkAdjusted": 4.539665535694823
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 6.349693251533742,
+          "fip": 4.948466257668712,
+          "blended": 5.369472607900118,
+          "confidence": "medium",
+          "ip": 32.6,
+          "source": "total",
+          "parkAdjusted": 6.690362869443547
+        },
+        "awayOffense": {
+          "multiplier": 0.8431510791131668,
+          "runsPerPA": 0.10286443165180635,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.0905779453923015,
+          "runsPerPA": 0.13305050933786078,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1.12,
+        "altitudeAdj": 0.126,
+        "totalPark": 1.246,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": -0.11,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.31230650154798756,
+          "restDays": 0,
+          "platoon": 0
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "CWS @ LAA",
+      "away": "CWS",
+      "home": "LAA",
+      "projected": 7.49,
+      "combined": 7.51,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 3.3333333333333335,
+          "fip": 4.866666666666667,
+          "blended": 4.346431670281995,
+          "confidence": "medium",
+          "ip": 32.4,
+          "source": "total",
+          "parkAdjusted": 4.216038720173535
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.5,
+          "fip": 4.5,
+          "blended": 4.5,
+          "confidence": "low",
+          "ip": 1.2,
+          "source": "default",
+          "parkAdjusted": 4.365
+        },
+        "awayOffense": {
+          "multiplier": 1.149241989326189,
+          "runsPerPA": 0.14020752269779505,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.5875962867864901,
+          "runsPerPA": 0.0716867469879518,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.97,
+        "altitudeAdj": 0,
+        "totalPark": 0.97,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.02,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": 0.10450819672131163,
+          "restDays": -0.28,
+          "platoon": -0.08
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "PIT @ ARI",
+      "away": "PIT",
+      "home": "ARI",
+      "projected": 9.83,
+      "combined": 9.81,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.76916519434629,
+          "fip": 5.053041519434629,
+          "blended": 5.1525323342546265,
+          "confidence": "low",
+          "ip": 28.299999999999997,
+          "source": "total",
+          "parkAdjusted": 5.160261132756009
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 3.074534161490683,
+          "fip": 4.939130434782609,
+          "blended": 4.331170020884754,
+          "confidence": "medium",
+          "ip": 32.2,
+          "source": "total",
+          "parkAdjusted": 4.337666775916081
+        },
+        "awayOffense": {
+          "multiplier": 0.9042178475238587,
+          "runsPerPA": 0.11031457739791076,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.143917557851984,
+          "runsPerPA": 0.13955794205794206,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 1,
+        "altitudeAdj": 0.0015,
+        "totalPark": 1.0015,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": -0.02,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.09760273972602741,
+          "restDays": -0.12,
+          "platoon": -0.12
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "ATL @ SEA",
+      "away": "ATL",
+      "home": "SEA",
+      "projected": 7.65,
+      "combined": 8.3,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "high",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 1.9471153846153848,
+          "fip": 3.0317307692307693,
+          "blended": 2.7069566189624332,
+          "confidence": "medium",
+          "ip": 41.599999999999994,
+          "source": "total",
+          "parkAdjusted": 2.517469655635063
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 3.942295081967213,
+          "fip": 4.282819672131147,
+          "blended": 3.912535144891538,
+          "confidence": "medium",
+          "ip": 43.6,
+          "source": "home",
+          "parkAdjusted": 3.6386576847491305
+        },
+        "awayOffense": {
+          "multiplier": 1.3767178889020264,
+          "runsPerPA": 0.16795958244604722,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 1.0475969851279263,
+          "runsPerPA": 0.127806832185607,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.93,
+        "altitudeAdj": 0,
+        "totalPark": 0.93,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.65,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": 0.33183453237410065,
+          "restDays": 0.12,
+          "platoon": 0.12
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    },
+    {
+      "matchup": "SD @ SF",
+      "away": "SD",
+      "home": "SF",
+      "projected": 5.84,
+      "combined": 5.859999999999999,
+      "line": null,
+      "edge": null,
+      "pick": "NO PLAY",
+      "confidence": "medium",
+      "breakdown": {
+        "awayStarter": {
+          "name": null,
+          "era": 4.914915254237288,
+          "fip": 4.0724067796610175,
+          "blended": 4.246069381914138,
+          "confidence": "low",
+          "ip": 23.599999999999998,
+          "source": "total",
+          "parkAdjusted": 3.906383831361007
+        },
+        "homeStarter": {
+          "name": null,
+          "era": 4.55328947368421,
+          "fip": 3.9943421052631582,
+          "blended": 4.031898934319269,
+          "confidence": "medium",
+          "ip": 44,
+          "source": "home",
+          "parkAdjusted": 3.7093470195737277
+        },
+        "awayOffense": {
+          "multiplier": 0.8981290105616718,
+          "runsPerPA": 0.10957173928852396,
+          "confidence": "high",
+          "source": "road"
+        },
+        "homeOffense": {
+          "multiplier": 0.6413070793132812,
+          "runsPerPA": 0.07823946367622031,
+          "confidence": "high",
+          "source": "home"
+        },
+        "parkFactor": 0.92,
+        "altitudeAdj": 0,
+        "totalPark": 0.92,
+        "weatherAdj": 0
+      },
+      "tactician": {
+        "total": 0.02,
+        "breakdown": {
+          "tto": 0,
+          "pitchCount": 0.2,
+          "workload": 0,
+          "barrel": -0.141295707472178,
+          "restDays": -0.04,
+          "platoon": -0.04
+        },
+        "factorsComputed": 2,
+        "confidence": "medium"
+      }
+    }
+  ],
+  "summary": {
+    "totalGames": 15,
+    "picksMade": 0,
+    "overs": 0,
+    "unders": 0,
+    "noPlay": 15
+  }
+}

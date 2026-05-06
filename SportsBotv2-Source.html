@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SportsBotv2 — Full Source Code</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+  }
+  header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  header p { color: var(--text-muted); font-size: 0.95rem; }
+  .badge {
+    display: inline-block;
+    background: #1f6feb33;
+    color: var(--accent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    margin: 0.5rem 0.25rem 0;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  nav {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  nav h2 {
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  nav ul { list-style: none; }
+  nav ul li { margin: 0.3rem 0; }
+  nav ul li a {
+    color: var(--text);
+    text-decoration: none;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85rem;
+    transition: color 0.15s;
+  }
+  nav ul li a:hover { color: var(--accent); }
+  nav ul li a .dir { color: var(--text-muted); }
+  .file-section {
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .file-header {
+    background: var(--surface);
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .file-header:hover { background: #1c2129; }
+  .file-header .icon { font-size: 1rem; }
+  .file-header .path {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .file-header .desc {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .file-header .toggle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+  }
+  .file-section.collapsed .toggle { transform: rotate(-90deg); }
+  .file-section.collapsed pre { display: none; }
+  pre {
+    margin: 0;
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    background: var(--bg);
+  }
+  pre code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+  .section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚾ SportsBotv2</h1>
+  <p>MLB Over/Under Projection Bot — Full Source Code Export</p>
+  <div>
+    <span class="badge">19 files</span>
+    <span class="badge">ES Modules</span>
+    <span class="badge">Node.js</span>
+    <span class="badge">v2.0.0</span>
+  </div>
+</header>
+
+<div class="container">
+
+<nav>
+  <h2>📁 Table of Contents</h2>
+  <ul>
+    <li><a href="#package-json"><span class="dir">./</span>package.json</a></li>
+    <li><a href="#defaults-json"><span class="dir">config/</span>defaults.json</a></li>
+    <li><a href="#teams-json"><span class="dir">config/</span>teams.json</a></li>
+    <li><a href="#index-js"><span class="dir">src/</span>index.js</a></li>
+    <li><a href="#client-js"><span class="dir">src/api/</span>client.js</a></li>
+    <li><a href="#schedule-js"><span class="dir">src/api/</span>schedule.js</a></li>
+    <li><a href="#pitcher-js"><span class="dir">src/api/</span>pitcher.js</a></li>
+    <li><a href="#team-js"><span class="dir">src/api/</span>team.js</a></li>
+    <li><a href="#odds-js"><span class="dir">src/api/</span>odds.js</a></li>
+    <li><a href="#weather-api-js"><span class="dir">src/api/</span>weather.js</a></li>
+    <li><a href="#roster-js"><span class="dir">src/api/</span>roster.js</a></li>
+    <li><a href="#fip-js"><span class="dir">src/model/</span>fip.js</a></li>
+    <li><a href="#offense-js"><span class="dir">src/model/</span>offense.js</a></li>
+    <li><a href="#park-js"><span class="dir">src/model/</span>park.js</a></li>
+    <li><a href="#weather-model-js"><span class="dir">src/model/</span>weather.js</a></li>
+    <li><a href="#tactician-js"><span class="dir">src/model/</span>tactician.js</a></li>
+    <li><a href="#project-js"><span class="dir">src/model/</span>project.js</a></li>
+    <li><a href="#console-js"><span class="dir">src/output/</span>console.js</a></li>
+    <li><a href="#tactician-out-js"><span class="dir">src/output/</span>tactician.js</a></li>
+    <li><a href="#json-js"><span class="dir">src/output/</span>json.js</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CONFIG -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section-label">Config</div>
+
+<div class="file-section" id="package-json">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">📦</span>
+    <span class="path">package.json</span>
+    <span class="desc">Project manifest</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-json">{
+  "name": "sportsbotv2",
+  "version": "2.0.0",
+  "description": "MLB Over/Under projection bot",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "today": "node src/index.js",
+    "test": "node src/index.js"
+  },
+  "private": true
+}</code></pre>
+</div>
+
+<div class="file-section" id="defaults-json">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">⚙️</span>
+    <span class="path">config/defaults.json</span>
+    <span class="desc">All tunable constants</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-json">{
+  "edgeThreshold": 0.5,
+  "leagueAvgRunsPerGame": 4.5,
+  "leagueAvgRunsPerPA": 0.122,
+  "fipConstant": 3.20,
+  "fipWeight": 0.65,
+  "eraWeight": 0.35,
+  "minPitcherIP": 30,
+  "minPitcherIPPartial": 10,
+  "partialDataBlend": 0.5,
+  "minTeamPA": 200,
+  "minTeamPAPartial": 50,
+  "windOutRunsPerMPH": 0.10,
+  "windInRunsPerMPH": 0.08,
+  "tempRunsPer10F": 0.15,
+  "tempHighThreshold": 90,
+  "tempHighBoost": 0.10,
+  "humidityRunsPer10Pct": 0.08,
+  "recentFormWeight": 1.5,
+  "weatherRequestDelayMs": 200,
+  "apiRetryAttempts": 3,
+  "apiRetryBackoffMs": 1000
+}</code></pre>
+</div>
+
+<div class="file-section" id="teams-json">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🏟️</span>
+    <span class="path">config/teams.json</span>
+    <span class="desc">Teams, stadiums, park factors</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-json">{
+  "teams": {
+    "109": { "abbr": "ARI", "name": "Arizona Diamondbacks", "fullName": "Arizona Diamondbacks" },
+    "144": { "abbr": "ATL", "name": "Atlanta Braves", "fullName": "Atlanta Braves" },
+    "110": { "abbr": "BAL", "name": "Baltimore Orioles", "fullName": "Baltimore Orioles" },
+    "111": { "abbr": "BOS", "name": "Boston Red Sox", "fullName": "Boston Red Sox" },
+    "112": { "abbr": "CHC", "name": "Chicago Cubs", "fullName": "Chicago Cubs" },
+    "145": { "abbr": "CWS", "name": "Chicago White Sox", "fullName": "Chicago White Sox" },
+    "113": { "abbr": "CIN", "name": "Cincinnati Reds", "fullName": "Cincinnati Reds" },
+    "114": { "abbr": "CLE", "name": "Cleveland Guardians", "fullName": "Cleveland Guardians" },
+    "115": { "abbr": "COL", "name": "Colorado Rockies", "fullName": "Colorado Rockies" },
+    "116": { "abbr": "DET", "name": "Detroit Tigers", "fullName": "Detroit Tigers" },
+    "117": { "abbr": "HOU", "name": "Houston Astros", "fullName": "Houston Astros" },
+    "118": { "abbr": "KC", "name": "Kansas City Royals", "fullName": "Kansas City Royals" },
+    "108": { "abbr": "LAA", "name": "Los Angeles Angels", "fullName": "Los Angeles Angels" },
+    "119": { "abbr": "LAD", "name": "Los Angeles Dodgers", "fullName": "Los Angeles Dodgers" },
+    "146": { "abbr": "MIA", "name": "Miami Marlins", "fullName": "Miami Marlins" },
+    "158": { "abbr": "MIL", "name": "Milwaukee Brewers", "fullName": "Milwaukee Brewers" },
+    "142": { "abbr": "MIN", "name": "Minnesota Twins", "fullName": "Minnesota Twins" },
+    "121": { "abbr": "NYM", "name": "New York Mets", "fullName": "New York Mets" },
+    "147": { "abbr": "NYY", "name": "New York Yankees", "fullName": "New York Yankees" },
+    "133": { "abbr": "ATH", "name": "Athletics", "fullName": "Athletics" },
+    "143": { "abbr": "PHI", "name": "Philadelphia Phillies", "fullName": "Philadelphia Phillies" },
+    "134": { "abbr": "PIT", "name": "Pittsburgh Pirates", "fullName": "Pittsburgh Pirates" },
+    "135": { "abbr": "SD", "name": "San Diego Padres", "fullName": "San Diego Padres" },
+    "136": { "abbr": "SEA", "name": "Seattle Mariners", "fullName": "Seattle Mariners" },
+    "137": { "abbr": "SF", "name": "San Francisco Giants", "fullName": "San Francisco Giants" },
+    "138": { "abbr": "STL", "name": "St. Louis Cardinals", "fullName": "St. Louis Cardinals" },
+    "139": { "abbr": "TB", "name": "Tampa Bay Rays", "fullName": "Tampa Bay Rays" },
+    "140": { "abbr": "TEX", "name": "Texas Rangers", "fullName": "Texas Rangers" },
+    "141": { "abbr": "TOR", "name": "Toronto Blue Jays", "fullName": "Toronto Blue Jays" },
+    "120": { "abbr": "WSH", "name": "Washington Nationals", "fullName": "Washington Nationals" }
+  },
+  "nameToAbbr": {
+    "Arizona Diamondbacks": "ARI", "Atlanta Braves": "ATL", "Baltimore Orioles": "BAL",
+    "Boston Red Sox": "BOS", "Chicago Cubs": "CHC", "Chicago White Sox": "CWS",
+    "Cincinnati Reds": "CIN", "Cleveland Guardians": "CLE", "Colorado Rockies": "COL",
+    "Detroit Tigers": "DET", "Houston Astros": "HOU", "Kansas City Royals": "KC",
+    "Los Angeles Angels": "LAA", "Los Angeles Dodgers": "LAD", "Miami Marlins": "MIA",
+    "Milwaukee Brewers": "MIL", "Minnesota Twins": "MIN", "New York Mets": "NYM",
+    "New York Yankees": "NYY", "Oakland Athletics": "OAK", "Athletics": "ATH",
+    "Philadelphia Phillies": "PHI", "Pittsburgh Pirates": "PIT", "San Diego Padres": "SD",
+    "Seattle Mariners": "SEA", "San Francisco Giants": "SF", "St. Louis Cardinals": "STL",
+    "Tampa Bay Rays": "TB", "Texas Rangers": "TEX", "Toronto Blue Jays": "TOR",
+    "Washington Nationals": "WSH"
+  },
+  "stadiums": {
+    "ARI": { "name": "Chase Field", "lat": 33.4455, "lon": -112.0667, "cfBearing": 23, "roof": true, "altitude": 1050 },
+    "ATL": { "name": "Truist Park", "lat": 33.8908, "lon": -84.4678, "cfBearing": 62, "roof": false, "altitude": 1000 },
+    "BAL": { "name": "Oriole Park", "lat": 39.2839, "lon": -76.6218, "cfBearing": 30, "roof": false, "altitude": 30 },
+    "BOS": { "name": "Fenway Park", "lat": 42.3467, "lon": -71.0972, "cfBearing": 46, "roof": false, "altitude": 10 },
+    "CHC": { "name": "Wrigley Field", "lat": 41.9484, "lon": -87.6553, "cfBearing": 36, "roof": false, "altitude": 600 },
+    "CWS": { "name": "Rate Field", "lat": 41.8299, "lon": -87.6338, "cfBearing": 42, "roof": false, "altitude": 600 },
+    "CIN": { "name": "Great American Ball Park", "lat": 39.0975, "lon": -84.5073, "cfBearing": 72, "roof": false, "altitude": 550 },
+    "CLE": { "name": "Progressive Field", "lat": 41.4962, "lon": -81.6852, "cfBearing": 0, "roof": false, "altitude": 700 },
+    "COL": { "name": "Coors Field", "lat": 39.7559, "lon": -104.9942, "cfBearing": 0, "roof": false, "altitude": 5200 },
+    "DET": { "name": "Comerica Park", "lat": 42.3390, "lon": -83.0485, "cfBearing": 150, "roof": false, "altitude": 600 },
+    "HOU": { "name": "Minute Maid Park", "lat": 29.7573, "lon": -95.3555, "cfBearing": 345, "roof": true, "altitude": 50 },
+    "KC": { "name": "Kauffman Stadium", "lat": 39.0517, "lon": -94.4803, "cfBearing": 45, "roof": false, "altitude": 750 },
+    "LAA": { "name": "Angel Stadium", "lat": 33.8003, "lon": -117.8827, "cfBearing": 45, "roof": false, "altitude": 100 },
+    "LAD": { "name": "Dodger Stadium", "lat": 34.0739, "lon": -118.2400, "cfBearing": 25, "roof": false, "altitude": 600 },
+    "MIA": { "name": "loanDepot park", "lat": 25.7781, "lon": -80.2196, "cfBearing": 40, "roof": true, "altitude": 10 },
+    "MIL": { "name": "American Family Field", "lat": 43.0280, "lon": -87.9712, "cfBearing": 0, "roof": true, "altitude": 700 },
+    "MIN": { "name": "Target Field", "lat": 44.9817, "lon": -93.2778, "cfBearing": 90, "roof": false, "altitude": 850 },
+    "NYM": { "name": "Citi Field", "lat": 40.7571, "lon": -73.8458, "cfBearing": 24, "roof": false, "altitude": 10 },
+    "NYY": { "name": "Yankee Stadium", "lat": 40.8296, "lon": -73.9262, "cfBearing": 75, "roof": false, "altitude": 50 },
+    "ATH": { "name": "Sutter Health Park", "lat": 38.5805, "lon": -121.5133, "cfBearing": 60, "roof": false, "altitude": 20 },
+    "PHI": { "name": "Citizens Bank Park", "lat": 39.9057, "lon": -75.1665, "cfBearing": 12, "roof": false, "altitude": 30 },
+    "PIT": { "name": "PNC Park", "lat": 40.4469, "lon": -80.0057, "cfBearing": 120, "roof": false, "altitude": 750 },
+    "SD": { "name": "Petco Park", "lat": 32.7073, "lon": -117.1566, "cfBearing": 0, "roof": false, "altitude": 30 },
+    "SEA": { "name": "T-Mobile Park", "lat": 47.5914, "lon": -122.3325, "cfBearing": 50, "roof": true, "altitude": 10 },
+    "SF": { "name": "Oracle Park", "lat": 37.7786, "lon": -122.3893, "cfBearing": 90, "roof": false, "altitude": 20 },
+    "STL": { "name": "Busch Stadium", "lat": 38.6226, "lon": -90.1928, "cfBearing": 60, "roof": false, "altitude": 500 },
+    "TB": { "name": "Tropicana Field", "lat": 27.7683, "lon": -82.6534, "cfBearing": 45, "roof": true, "altitude": 10 },
+    "TEX": { "name": "Globe Life Field", "lat": 32.7473, "lon": -97.0817, "cfBearing": 0, "roof": true, "altitude": 550 },
+    "TOR": { "name": "Rogers Centre", "lat": 43.6414, "lon": -79.3894, "cfBearing": 0, "roof": true, "altitude": 250 },
+    "WSH": { "name": "Nationals Park", "lat": 38.8730, "lon": -77.0074, "cfBearing": 30, "roof": false, "altitude": 10 }
+  },
+  "parkFactors": {
+    "COL": 1.12, "CIN": 1.08, "BOS": 1.06, "TEX": 1.03, "PHI": 1.03,
+    "KC": 1.02, "BAL": 1.01, "TOR": 1.01, "CHC": 1.00, "NYY": 1.00,
+    "HOU": 1.00, "ATL": 1.00, "ARI": 1.00, "MIN": 1.00, "MIL": 0.99,
+    "WSH": 0.99, "CWS": 0.99, "STL": 0.98, "CLE": 0.98, "LAD": 0.98,
+    "NYM": 0.97, "LAA": 0.97, "TB": 0.96, "PIT": 0.96, "DET": 0.94,
+    "SEA": 0.93, "ATH": 0.95, "OAK": 0.93, "MIA": 0.92, "SF": 0.92, "SD": 0.92
+  }
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ENTRY POINT -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section-label">Entry Point</div>
+
+<div class="file-section" id="index-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🚀</span>
+    <span class="path">src/index.js</span>
+    <span class="desc">Main entry point</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/index.js — Main entry point for SportsBotv2
+// Run: node src/index.js [YYYY-MM-DD]
+
+import { fetchSchedule } from './api/schedule.js';
+import { fetchPitcherStats, fetchPitcherHand } from './api/pitcher.js';
+import { fetchTeamStats } from './api/team.js';
+import { fetchOdds } from './api/odds.js';
+import { fetchAllWeather } from './api/weather.js';
+import { fetchRoster, calcPlatoon } from './api/roster.js';
+import { project } from './model/project.js';
+import { getStadium } from './model/park.js';
+import { tacticianScore, daysRestAdjustment, workloadDecay } from './model/tactician.js';
+import { printResults, printSummary } from './output/console.js';
+import { printTactician, printCombined } from './output/tactician.js';
+import { saveResults } from './output/json.js';
+import { loadConfig, loadTeams } from './api/client.js';
+
+const date = process.argv[2] || new Date().toISOString().slice(0, 10);
+const season = date.slice(0, 4);
+const config = loadConfig();
+const teams = loadTeams();
+
+console.log(`\n🏟️  SportsBotv2 — MLB O/U Projections for ${date}\n`);
+
+// ── 1. Fetch schedule ──
+console.log('1️⃣  Fetching schedule...');
+const games = await fetchSchedule(date);
+console.log(`   Found ${games.length} games\n`);
+
+if (games.length === 0) {
+  console.log('No games scheduled today. Done.');
+  process.exit(0);
+}
+
+// ── 2. Collect IDs ──
+const pitcherIds = new Set();
+const teamIds = new Set();
+for (const g of games) {
+  if (g.away.starter?.id) pitcherIds.add(g.away.starter.id);
+  if (g.home.starter?.id) pitcherIds.add(g.home.starter.id);
+  teamIds.add(g.away.id);
+  teamIds.add(g.home.id);
+}
+
+// ── 3. Fetch pitcher stats (with rest days) ──
+console.log('2️⃣  Fetching pitcher stats...');
+const pitcherLogs = {};
+const pitcherHands = {};
+for (const pid of pitcherIds) {
+  pitcherLogs[pid] = await fetchPitcherStats(pid, season, date);
+  pitcherHands[pid] = await fetchPitcherHand(pid);
+}
+const pFound = Object.values(pitcherLogs).filter(Boolean).length;
+console.log(`   Got stats for ${pFound}/${pitcherIds.size} pitchers\n`);
+
+// ── 4. Fetch team stats ──
+console.log('3️⃣  Fetching team stats...');
+const teamLogs = {};
+for (const tid of teamIds) {
+  teamLogs[tid] = await fetchTeamStats(tid, season);
+}
+const tFound = Object.values(teamLogs).filter(Boolean).length;
+console.log(`   Got stats for ${tFound}/${teamIds.size} teams\n`);
+
+// ── 5. Fetch rosters for platoon splits ──
+console.log('4️⃣  Fetching rosters (platoon splits)...');
+const rosters = {};
+for (const tid of teamIds) {
+  rosters[tid] = await fetchRoster(tid);
+}
+console.log(`   Got rosters for ${Object.keys(rosters).length} teams\n`);
+
+// ── 6. Fetch odds ──
+console.log('5️⃣  Fetching odds...');
+const odds = await fetchOdds();
+console.log(`   Got lines for ${odds.length} games\n`);
+
+// ── 7. Fetch weather ──
+console.log('6️⃣  Fetching weather...');
+const outdoorStadiums = {};
+for (const abbr of [...new Set(games.map(g => g.home.abbr))]) {
+  const s = getStadium(abbr);
+  if (s && !s.roof) outdoorStadiums[abbr] = s;
+}
+const weather = await fetchAllWeather(outdoorStadiums);
+const wCount = Object.values(weather).filter(Boolean).length;
+console.log(`   Got weather for ${wCount} outdoor stadiums\n`);
+
+// ── 8. Run projections + tactician ──
+console.log('7️⃣  Running projections + tactician analysis...\n');
+
+const results = [];
+
+for (const g of games) {
+  const awayPitcherLog = g.away.starter?.id ? pitcherLogs[g.away.starter.id] : null;
+  const homePitcherLog = g.home.starter?.id ? pitcherLogs[g.home.starter.id] : null;
+  const awayTeamLog = teamLogs[g.away.id];
+  const homeTeamLog = teamLogs[g.home.id];
+  const awayRoster = rosters[g.away.id];
+  const homeRoster = rosters[g.home.id];
+
+  // Base projection
+  const { projected, confidence, breakdown } = project({
+    homeAbbr: g.home.abbr,
+    awayPitcherLog,
+    homePitcherLog,
+    awayTeamLog,
+    homeTeamLog,
+    weather: weather[g.home.abbr],
+  });
+
+  // ── TACTICIAN ANALYSIS (with rest days + platoon) ──
+  const stadium = getStadium(g.home.abbr);
+  const weatherData = weather[g.home.abbr];
+
+  // Pitcher handedness for platoon
+  const awayPitcherHand = g.away.starter?.id ? pitcherHands[g.away.starter.id] : null;
+  const homePitcherHand = g.home.starter?.id ? pitcherHands[g.home.starter.id] : null;
+
+  // Platoon splits
+  const awayPlatoon = calcPlatoon(homeRoster, awayPitcherHand); // home lineup vs away pitcher
+  const homePlatoon = calcPlatoon(awayRoster, homePitcherHand); // away lineup vs home pitcher
+
+  // Rest days (from pitcher game log)
+  const awayRestDays = awayPitcherLog?.restDays ?? null;
+  const homeRestDays = homePitcherLog?.restDays ?? null;
+
+  // Workload decay
+  const awayWorkload = awayPitcherLog ? workloadDecay(awayPitcherLog.total.ip) : 0;
+  const homeWorkload = homePitcherLog ? workloadDecay(homePitcherLog.total.ip) : 0;
+
+  // Build tactician inputs
+  const tactInput = {
+    pitcher: awayPitcherLog ? {
+      avgPitchCount: 95,
+      seasonIP: awayPitcherLog.total?.ip || 0,
+    } : null,
+    weather: weatherData ? {
+      tempF: weatherData.tempF,
+      humidity: weatherData.humidity || 50,
+      windMph: weatherData.windMph,
+      windDeg: weatherData.windDeg,
+    } : null,
+    altitudeFt: stadium?.altitude || 0,
+    cfBearing: stadium?.cfBearing || 0,
+    barrelRate: awayTeamLog?.total ? (awayTeamLog.total.hr / awayTeamLog.total.pa) * 2.5 : null,
+  };
+
+  const tactician = tacticianScore(tactInput);
+
+  // Add rest days, platoon, and workload decay to tactician
+  const awayRestAdj = awayRestDays !== null ? daysRestAdjustment(awayRestDays) : 0;
+  const homeRestAdj = homeRestDays !== null ? daysRestAdjustment(homeRestDays) : 0;
+
+  // Apply adjustments: rest days and platoon go to the OPPOSING team's scoring
+  const restPlatoonAdj = (awayRestAdj - homeRestAdj) + (awayPlatoon.adjustment - homePlatoon.adjustment);
+  const workloadAdj = awayWorkload - homeWorkload;
+
+  tactician.total += restPlatoonAdj + workloadAdj;
+  tactician.breakdown.restDays = restPlatoonAdj;
+  tactician.breakdown.workload = workloadAdj;
+  tactician.breakdown.platoon = awayPlatoon.adjustment - homePlatoon.adjustment;
+  tactician.total = Math.round(tactician.total * 100) / 100;
+
+  // Combined projection
+  const combined = projected + (tactician.total || 0);
+
+  // Find matching odds line
+  const match = odds.find(o => o.away === g.away.abbr &amp;&amp; o.home === g.home.abbr);
+  const line = match?.total || null;
+
+  // Calculate edge using COMBINED projection
+  let edge = null;
+  let pick = 'NO PLAY';
+  if (line) {
+    edge = combined - line;
+    if (Math.abs(edge) >= (config.edgeThreshold || 0.5)) {
+      pick = edge > 0 ? 'OVER' : 'UNDER';
+    }
+  }
+
+  // Collect warnings
+  const gameWarnings = [];
+  if (!g.away.starter) gameWarnings.push(`${g.away.abbr}: Away starter TBD`);
+  if (!g.home.starter) gameWarnings.push(`${g.home.abbr}: Home starter TBD`);
+  if (awayRestDays !== null &amp;&amp; awayRestDays &lt;= 2) gameWarnings.push(`${g.away.abbr}: Short rest (${awayRestDays} days)`);
+  if (homeRestDays !== null &amp;&amp; homeRestDays &lt;= 2) gameWarnings.push(`${g.home.abbr}: Short rest (${homeRestDays} days)`);
+
+  results.push({
+    away: g.away,
+    home: g.home,
+    projected,
+    combined,
+    line,
+    edge,
+    pick,
+    confidence,
+    warnings: gameWarnings,
+    breakdown,
+    tactician,
+    platoon: { away: awayPlatoon, home: homePlatoon },
+    restDays: { away: awayRestDays, home: homeRestDays },
+  });
+}
+
+// ── 9. Output ──
+printResults(results);
+printSummary(results);
+
+// Tactician breakdown
+console.log('🧠 TACTICIAN ANALYSIS:');
+console.log('───────────────────────────────────────────────');
+for (const r of results) {
+  const matchup = `${r.away.abbr} @ ${r.home.abbr}`;
+  printTactician(matchup, r.tactician);
+  printCombined(r);
+
+  // Show platoon detail
+  if (r.platoon.away.adjustment !== 0 || r.platoon.home.adjustment !== 0) {
+    const a = r.platoon.away;
+    const h = r.platoon.home;
+    console.log(`  ⚔️  Platoon: away lineup ${a.favorable}L/${a.unfavorable}R/${a.neutral}S vs home pitcher → ${a.adjustment > 0 ? '+' : ''}${a.adjustment.toFixed(2)}`);
+    console.log(`           home lineup ${h.favorable}L/${h.unfavorable}R/${h.neutral}S vs away pitcher → ${h.adjustment > 0 ? '+' : ''}${h.adjustment.toFixed(2)}`);
+  }
+
+  // Show rest days
+  if (r.restDays.away !== null || r.restDays.home !== null) {
+    console.log(`  📅 Rest: ${r.away.abbr} starter on ${r.restDays.away ?? '?'} days rest | ${r.home.abbr} starter on ${r.restDays.home ?? '?'} days rest`);
+  }
+}
+console.log('');
+
+saveResults(date, results);
+
+console.log('✅ Done!\n');</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- API LAYER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section-label">API Layer</div>
+
+<div class="file-section" id="client-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🔧</span>
+    <span class="path">src/api/client.js</span>
+    <span class="desc">Shared fetch helpers, config loader, retry logic</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/client.js — Shared fetch helpers with retry logic
+
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT = join(__dirname, '..', '..');
+
+// Load config
+let _config = null;
+export function loadConfig() {
+  if (!_config) {
+    _config = JSON.parse(readFileSync(join(ROOT, 'config', 'defaults.json'), 'utf8'));
+  }
+  return _config;
+}
+
+let _teams = null;
+export function loadTeams() {
+  if (!_teams) {
+    _teams = JSON.parse(readFileSync(join(ROOT, 'config', 'teams.json'), 'utf8'));
+  }
+  return _teams;
+}
+
+// Load .env
+let _envLoaded = false;
+export function loadEnv() {
+  if (_envLoaded) return;
+  try {
+    const envPath = join(ROOT, '.env');
+    const lines = readFileSync(envPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim();
+      if (!process.env[key]) process.env[key] = val;
+    }
+  } catch { /* .env not found — that's ok, keys may come from env */ }
+  _envLoaded = true;
+}
+
+// Fetch with retry
+export async function fetchJSON(url, { retries = 3, backoffMs = 1000, label = '' } = {}) {
+  let lastErr;
+  for (let attempt = 1; attempt &lt;= retries; attempt++) {
+    try {
+      const r = await fetch(url);
+      if (r.status === 429) {
+        const wait = parseInt(r.headers.get('retry-after') || '5') * 1000;
+        console.log(`  ⏳ Rate limited${label ? ` (${label})` : ''}, waiting ${wait}ms...`);
+        await sleep(wait);
+        continue;
+      }
+      if (!r.ok) {
+        const text = await r.text().catch(() => '');
+        throw new Error(`HTTP ${r.status}: ${text.slice(0, 200)}`);
+      }
+      return await r.json();
+    } catch (err) {
+      lastErr = err;
+      if (attempt &lt; retries) {
+        const wait = backoffMs * attempt;
+        console.log(`  ⚠️  Retry ${attempt}/${retries}${label ? ` (${label})` : ''}: ${err.message}`);
+        await sleep(wait);
+      }
+    }
+  }
+  throw new Error(`Failed after ${retries} attempts${label ? ` (${label})` : ''}: ${lastErr.message}`);
+}
+
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}</code></pre>
+</div>
+
+<div class="file-section" id="schedule-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">📅</span>
+    <span class="path">src/api/schedule.js</span>
+    <span class="desc">MLB schedule fetcher</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/schedule.js — Fetch MLB schedule for a given date
+
+import { fetchJSON, loadTeams } from './client.js';
+
+/**
+ * Fetch all games for a date.
+ * @param {string} date - YYYY-MM-DD
+ * @returns {Promise&lt;Array&gt;} Array of game objects
+ */
+export async function fetchSchedule(date) {
+  const teams = loadTeams();
+  const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&amp;date=${date}&amp;hydrate=probablePitcher,venue,team`;
+  const data = await fetchJSON(url, { label: 'schedule' });
+
+  const games = [];
+  for (const dateEntry of data.dates || []) {
+    for (const g of dateEntry.games || []) {
+      const awayTeam = teams.teams[g.teams.away.team.id];
+      const homeTeam = teams.teams[g.teams.home.team.id];
+
+      games.push({
+        gamePk: g.gamePk,
+        away: {
+          id: g.teams.away.team.id,
+          name: g.teams.away.team.name,
+          abbr: awayTeam?.abbr || g.teams.away.team.abbreviation,
+          starter: g.teams.away.probablePitcher,
+        },
+        home: {
+          id: g.teams.home.team.id,
+          name: g.teams.home.team.name,
+          abbr: homeTeam?.abbr || g.teams.home.team.abbreviation,
+          starter: g.teams.home.probablePitcher,
+        },
+      });
+    }
+  }
+  return games;
+}</code></pre>
+</div>
+
+<div class="file-section" id="pitcher-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">⚾</span>
+    <span class="path">src/api/pitcher.js</span>
+    <span class="desc">Pitcher stats, rest days, handedness</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/pitcher.js — Fetch pitcher stats with home/road splits, rest days, handedness
+
+import { fetchJSON, loadConfig } from './client.js';
+
+/**
+ * Fetch a pitcher's season game log with home/road splits, recent form, and rest days.
+ * @param {number} pitcherId
+ * @param {string|number} season
+ * @param {string} currentDate - YYYY-MM-DD for rest day calculation
+ * @returns {Promise&lt;Object|null&gt;} Aggregated pitching stats with splits + metadata
+ */
+export async function fetchPitcherStats(pitcherId, season, currentDate) {
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/people/${pitcherId}/stats?stats=gameLog&amp;season=${season}&amp;group=pitching`;
+    const data = await fetchJSON(url, { label: `pitcher ${pitcherId}` });
+    const splits = data.stats?.[0]?.splits || [];
+
+    const total = { ip: 0, er: 0, h: 0, bb: 0, k: 0, hr: 0, bf: 0, games: 0, starts: [] };
+    const home = { ip: 0, er: 0, h: 0, bb: 0, k: 0, hr: 0, bf: 0, games: 0 };
+    const away = { ip: 0, er: 0, h: 0, bb: 0, k: 0, hr: 0, bf: 0, games: 0 };
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 14);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    const recent = { ip: 0, er: 0, h: 0, bb: 0, k: 0, hr: 0, bf: 0, games: 0 };
+
+    for (const s of splits) {
+      const stat = s.stat || {};
+      const ip = parseFloat(stat.inningsPitched || 0);
+      const er = parseInt(stat.earnedRuns || 0);
+      const gameData = {
+        date: s.date,
+        ip,
+        er,
+        h: parseInt(stat.hits || 0),
+        bb: parseInt(stat.baseOnBalls || 0),
+        k: parseInt(stat.strikeOuts || 0),
+        hr: parseInt(stat.homeRuns || 0),
+        isHome: s.isHome,
+      };
+
+      total.ip += ip;
+      total.er += er;
+      total.h += gameData.h;
+      total.bb += gameData.bb;
+      total.k += gameData.k;
+      total.hr += gameData.hr;
+      total.bf += parseInt(stat.battersFaced || 0);
+      total.games += 1;
+      total.starts.push(gameData);
+
+      const dest = gameData.isHome ? home : away;
+      dest.ip += ip;
+      dest.er += er;
+      dest.h += gameData.h;
+      dest.bb += gameData.bb;
+      dest.k += gameData.k;
+      dest.hr += gameData.hr;
+      dest.bf += parseInt(stat.battersFaced || 0);
+      dest.games += 1;
+
+      if (s.date >= cutoffStr) {
+        recent.ip += ip;
+        recent.er += er;
+        recent.h += gameData.h;
+        recent.bb += gameData.bb;
+        recent.k += gameData.k;
+        recent.hr += gameData.hr;
+        recent.bf += parseInt(stat.battersFaced || 0);
+        recent.games += 1;
+      }
+    }
+
+    total.starts.sort((a, b) => b.date.localeCompare(a.date));
+
+    // Calculate rest days
+    let restDays = null;
+    if (total.starts.length >= 2 &amp;&amp; currentDate) {
+      const lastStart = total.starts[0].date;
+      const diff = (new Date(currentDate) - new Date(lastStart)) / (1000 * 60 * 60 * 24);
+      restDays = Math.round(diff * 10) / 10;
+    }
+
+    return { total, home, away, recent, restDays };
+  } catch (err) {
+    console.error(`  ❌ Pitcher ${pitcherId}: ${err.message}`);
+    return null;
+  }
+}
+
+/**
+ * Fetch a pitcher's handedness from the people endpoint.
+ * @param {number} pitcherId
+ * @returns {Promise&lt;string|null&gt;} 'L' or 'R'
+ */
+export async function fetchPitcherHand(pitcherId) {
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/people/${pitcherId}`;
+    const data = await fetchJSON(url, { retries: 1, label: `pitcher hand ${pitcherId}` });
+    return data.people?.[0]?.pitchHand?.code || null;
+  } catch {
+    return null;
+  }
+}</code></pre>
+</div>
+
+<div class="file-section" id="team-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">📊</span>
+    <span class="path">src/api/team.js</span>
+    <span class="desc">Team hitting stats with home/road splits</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/team.js — Fetch team hitting stats with home/road splits
+
+import { fetchJSON } from './client.js';
+
+/**
+ * Fetch a team's season hitting stats with home/road splits and recent form.
+ * @param {number} teamId
+ * @param {string|number} season
+ * @returns {Promise&lt;Object&gt;} Aggregated hitting stats with splits
+ */
+export async function fetchTeamStats(teamId, season) {
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/stats?stats=gameLog&amp;season=${season}&amp;group=hitting`;
+    const data = await fetchJSON(url, { label: `team ${teamId}` });
+    const splits = data.stats?.[0]?.splits || [];
+
+    const total = { runs: 0, pa: 0, hr: 0, games: 0 };
+    const home = { runs: 0, pa: 0, hr: 0, games: 0 };
+    const away = { runs: 0, pa: 0, hr: 0, games: 0 };
+    const recent = { runs: 0, pa: 0, hr: 0, games: 0 }; // last 14 days
+    const games_log = [];
+
+    // 14 days ago for recent form
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 14);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+    for (const s of splits) {
+      const stat = s.stat || {};
+      const gameData = {
+        date: s.date,
+        runs: parseInt(stat.runs || 0),
+        pa: parseInt(stat.plateAppearances || 0),
+        hr: parseInt(stat.homeRuns || 0),
+        isHome: s.isHome,
+      };
+
+      // Total
+      total.runs += gameData.runs;
+      total.pa += gameData.pa;
+      total.hr += gameData.hr;
+      total.games += 1;
+
+      // Home/road
+      if (gameData.isHome) {
+        home.runs += gameData.runs;
+        home.pa += gameData.pa;
+        home.hr += gameData.hr;
+        home.games += 1;
+      } else {
+        away.runs += gameData.runs;
+        away.pa += gameData.pa;
+        away.hr += gameData.hr;
+        away.games += 1;
+      }
+
+      // Recent form (last 14 days)
+      if (s.date >= cutoffStr) {
+        recent.runs += gameData.runs;
+        recent.pa += gameData.pa;
+        recent.hr += gameData.hr;
+        recent.games += 1;
+      }
+
+      games_log.push(gameData);
+    }
+
+    return { total, home, away, recent, games_log };
+  } catch (err) {
+    console.error(`  ❌ Team ${teamId}: ${err.message}`);
+    return null;
+  }
+}</code></pre>
+</div>
+
+<div class="file-section" id="odds-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">💰</span>
+    <span class="path">src/api/odds.js</span>
+    <span class="desc">FanDuel totals via The Odds API</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/odds.js — Fetch FanDuel totals lines
+
+import { fetchJSON, loadEnv, loadTeams } from './client.js';
+
+/**
+ * Fetch FanDuel over/under totals for today's MLB games.
+ * @returns {Promise&lt;Array&gt;} Array of { away, home, total, commenceTime }
+ */
+export async function fetchOdds() {
+  loadEnv();
+  const apiKey = process.env.ODDS_API_KEY;
+  if (!apiKey) {
+    console.log('  ⚠️  No ODDS_API_KEY set, skipping odds');
+    return [];
+  }
+
+  const teams = loadTeams();
+  const url = `https://api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey=${apiKey}&amp;regions=us&amp;markets=totals&amp;oddsFormat=american&amp;bookmakers=fanduel`;
+
+  try {
+    const data = await fetchJSON(url, { label: 'odds' });
+    return data.map(g => {
+      const fd = g.bookmakers?.find(b => b.key === 'fanduel');
+      const totals = fd?.markets.find(m => m.key === 'totals');
+      const over = totals?.outcomes.find(o => o.name === 'Over');
+      return {
+        away: teams.nameToAbbr[g.away_team] || g.away_team,
+        home: teams.nameToAbbr[g.home_team] || g.home_team,
+        total: over?.point,
+        commenceTime: g.commence_time,
+      };
+    }).filter(x => x.total != null);
+  } catch (err) {
+    console.error(`  ❌ Odds API: ${err.message}`);
+    return [];
+  }
+}</code></pre>
+</div>
+
+<div class="file-section" id="weather-api-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🌤️</span>
+    <span class="path">src/api/weather.js</span>
+    <span class="desc">OpenWeather with rate limiting</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/weather.js — Fetch weather with rate limiting
+
+import { fetchJSON, sleep, loadConfig, loadEnv } from './client.js';
+
+/**
+ * Fetch weather for a stadium location.
+ * @param {number} lat
+ * @param {number} lon
+ * @returns {Promise&lt;Object|null&gt;} { tempF, windMph, windDeg, humidity }
+ */
+export async function fetchWeather(lat, lon) {
+  loadEnv();
+  const apiKey = process.env.OPENWEATHER_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&amp;lon=${lon}&amp;appid=${apiKey}&amp;units=imperial`;
+    const d = await fetchJSON(url, { retries: 2, backoffMs: 500, label: 'weather' });
+    return {
+      tempF: d.main?.temp,
+      windMph: d.wind?.speed || 0,
+      windDeg: d.wind?.deg || 0,
+      humidity: d.main?.humidity || 50,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch weather for multiple stadiums with rate limiting.
+ * @param {Object} stadiums - Stadium data from teams.json
+ * @returns {Promise&lt;Object&gt;} Map of abbr → weather data
+ */
+export async function fetchAllWeather(stadiums) {
+  const config = loadConfig();
+  const weather = {};
+  const delay = config.weatherRequestDelayMs || 200;
+
+  for (const [abbr, stadium] of Object.entries(stadiums)) {
+    if (stadium.roof) {
+      weather[abbr] = null;
+      continue;
+    }
+    weather[abbr] = await fetchWeather(stadium.lat, stadium.lon);
+    if (delay > 0) await sleep(delay);
+  }
+
+  return weather;
+}</code></pre>
+</div>
+
+<div class="file-section" id="roster-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">👥</span>
+    <span class="path">src/api/roster.js</span>
+    <span class="desc">Active roster + platoon splits</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/api/roster.js — Fetch team roster with batter handedness for platoon splits
+
+import { fetchJSON } from './client.js';
+
+/**
+ * Fetch a team's active roster with batter handedness.
+ * @param {number} teamId
+ * @returns {Promise&lt;Object&gt;} { batters: [{ name, bats }], lhbCount, rhbCount, switchCount }
+ */
+export async function fetchRoster(teamId) {
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&amp;season=2026&amp;hydrate=person`;
+    const data = await fetchJSON(url, { label: `roster ${teamId}` });
+    const roster = data.roster || [];
+
+    const batters = [];
+    let lhb = 0, rhb = 0, switchH = 0;
+
+    for (const p of roster) {
+      const person = p.person;
+      const pos = p.position?.abbreviation;
+
+      // Skip pitchers (they don't hit in AL, and we want position players)
+      if (pos === 'P') continue;
+
+      const batSide = person?.batSide?.code;
+      if (batSide === 'L') lhb++;
+      else if (batSide === 'R') rhb++;
+      else if (batSide === 'S') switchH++;
+
+      batters.push({
+        name: person?.fullName,
+        bats: batSide,
+        position: pos,
+      });
+    }
+
+    return { batters, lhbCount: lhb, rhbCount: rhb, switchCount: switchH };
+  } catch (err) {
+    console.error(`  ❌ Roster ${teamId}: ${err.message}`);
+    return { batters: [], lhbCount: 0, rhbCount: 0, switchCount: 0 };
+  }
+}
+
+/**
+ * Calculate platoon advantage for a lineup against a pitcher.
+ * @param {Object} roster - From fetchRoster
+ * @param {string} pitcherHand - 'L' or 'R'
+ * @returns {Object} { adjustment, favorable, unfavorable, neutral }
+ */
+export function calcPlatoon(roster, pitcherHand) {
+  if (!pitcherHand || !roster?.batters?.length) {
+    return { adjustment: 0, favorable: 0, unfavorable: 0, neutral: 0 };
+  }
+
+  let favorable = 0;
+  let unfavorable = 0;
+  let neutral = 0;
+
+  // Use the top 8 position players (typical lineup minus pitcher/DH)
+  const lineup = roster.batters.slice(0, 8);
+
+  for (const batter of lineup) {
+    if (batter.bats === 'S') {
+      neutral++; // Switch hitters neutralize the matchup
+    } else if (pitcherHand === 'R') {
+      if (batter.bats === 'L') favorable++;
+      else unfavorable++;
+    } else { // LHP
+      if (batter.bats === 'R') favorable++;
+      else unfavorable++;
+    }
+  }
+
+  const net = favorable - unfavorable;
+  // Each net favorable matchup ≈ +0.04 runs
+  const adjustment = net * 0.04;
+
+  return { adjustment, favorable, unfavorable, neutral };
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODEL LAYER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section-label">Model Layer</div>
+
+<div class="file-section" id="fip-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🎯</span>
+    <span class="path">src/model/fip.js</span>
+    <span class="desc">Pitcher rating (FIP/ERA blend)</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/model/fip.js — Pitcher rating via FIP + ERA blend with home/road splits
+
+import { loadConfig } from '../api/client.js';
+
+function calculateFIP(log, constant) {
+  if (!log || log.ip &lt;= 0) return null;
+  return ((13 * log.hr) + (3 * log.bb) - (2 * log.k)) / log.ip + constant;
+}
+
+function calculateERA(log) {
+  if (!log || log.ip &lt;= 0) return null;
+  return (log.er * 9) / log.ip;
+}
+
+function recentFormStats(starts, lastN = 5, weight = 2.0) {
+  if (!starts || starts.length === 0) return null;
+  const recent = starts.slice(0, lastN);
+  const older = starts.slice(lastN);
+  const blend = { ip: 0, er: 0, h: 0, bb: 0, k: 0, hr: 0 };
+  for (const g of recent) {
+    blend.ip += g.ip * weight;
+    blend.er += g.er * weight;
+    blend.h += g.h * weight;
+    blend.bb += g.bb * weight;
+    blend.k += g.k * weight;
+    blend.hr += g.hr * weight;
+  }
+  for (const g of older) {
+    blend.ip += g.ip;
+    blend.er += g.er;
+    blend.h += g.h;
+    blend.bb += g.bb;
+    blend.k += g.k;
+    blend.hr += g.hr;
+  }
+  return blend;
+}
+
+/**
+ * Blend a partial-season stat set with league average.
+ * When a pitcher has 10-30 IP, we trust their data proportionally.
+ */
+function blendWithLeagueAvg(stat, ip, config) {
+  const minIP = config.minPitcherIP || 30;
+  const minPartial = config.minPitcherIPPartial || 10;
+  const blendPct = config.partialDataBlend || 0.5;
+
+  if (ip >= minIP) return stat; // Enough data, use as-is
+  if (ip &lt; minPartial) return null; // Too little data
+
+  // Linear blend: at minPartial IP → 0% real, at minIP → 100% real
+  const pct = ((ip - minPartial) / (minIP - minPartial)) * blendPct;
+  const lg = config.leagueAvgRunsPerGame;
+
+  return stat * pct + lg * (1 - pct);
+}
+
+/**
+ * Rate a pitcher for a specific context (home or away).
+ * Uses home/road splits + recent form + partial data blending.
+ */
+export function ratePitcher(pitcherLog, isHome = false) {
+  const config = loadConfig();
+  const minIP = config.minPitcherIP || 30;
+  const minPartial = config.minPitcherIPPartial || 10;
+  const totalIP = pitcherLog?.total?.ip || 0;
+
+  // Complete fallback — no data at all or under partial threshold
+  if (!pitcherLog || totalIP &lt; minPartial) {
+    return {
+      era: config.leagueAvgRunsPerGame,
+      fip: config.leagueAvgRunsPerGame,
+      blended: config.leagueAvgRunsPerGame,
+      confidence: 'low',
+      ip: totalIP,
+      source: 'default',
+    };
+  }
+
+  // Use home/road split if available
+  const split = isHome ? pitcherLog.home : pitcherLog.away;
+  const splitMinIP = minIP / 2;
+
+  let baseFIP, baseERA, confidence, source;
+
+  if (split &amp;&amp; split.ip >= splitMinIP) {
+    baseFIP = calculateFIP(split, config.fipConstant);
+    baseERA = calculateERA(split);
+    // Blend split stats with league avg if still thin
+    baseFIP = blendWithLeagueAvg(baseFIP, split.ip, config) || config.leagueAvgRunsPerGame;
+    baseERA = blendWithLeagueAvg(baseERA, split.ip, config) || config.leagueAvgRunsPerGame;
+    confidence = split.ip >= minIP ? 'high' : 'medium';
+    source = isHome ? 'home' : 'road';
+  } else {
+    baseFIP = calculateFIP(pitcherLog.total, config.fipConstant);
+    baseERA = calculateERA(pitcherLog.total);
+    baseFIP = blendWithLeagueAvg(baseFIP, totalIP, config) || config.leagueAvgRunsPerGame;
+    baseERA = blendWithLeagueAvg(baseERA, totalIP, config) || config.leagueAvgRunsPerGame;
+    confidence = totalIP >= minIP ? 'medium' : 'low';
+    source = 'total';
+  }
+
+  // Recent-form blend (last 5 starts weighted 2x)
+  const recentStats = recentFormStats(
+    pitcherLog.total.starts,
+    5,
+    config.recentFormWeight || 2.0
+  );
+  const recentFIP = recentStats ? calculateFIP(recentStats, config.fipConstant) : baseFIP;
+  const recentERA = recentStats ? calculateERA(recentStats) : baseERA;
+
+  // Blend: 70% base, 30% recent form (stable, not over-reactive)
+  const blendedFIP = recentFIP ? baseFIP * 0.7 + recentFIP * 0.3 : baseFIP;
+  const blendedERA = recentERA ? baseERA * 0.7 + recentERA * 0.3 : baseERA;
+
+  // Final blend: weighted FIP + ERA
+  const blended = blendedFIP * (config.fipWeight || 0.65) + blendedERA * (config.eraWeight || 0.35);
+
+  return { era: baseERA, fip: baseFIP, blended, confidence, ip: totalIP, source };
+}</code></pre>
+</div>
+
+<div class="file-section" id="offense-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">💥</span>
+    <span class="path">src/model/offense.js</span>
+    <span class="desc">Team offense rating</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/model/offense.js — Team offensive rating with home/road splits and recent form
+
+import { loadConfig } from '../api/client.js';
+
+/**
+ * Blend a partial stat with league average.
+ */
+function blendWithLeagueAvg(rpa, pa, config) {
+  const minPA = config.minTeamPA || 200;
+  const minPartial = config.minTeamPAPartial || 50;
+  const blendPct = config.partialDataBlend || 0.5;
+
+  if (pa >= minPA) return rpa;
+  if (pa &lt; minPartial) return null;
+
+  const pct = ((pa - minPartial) / (minPA - minPartial)) * blendPct;
+  return rpa * pct + config.leagueAvgRunsPerPA * (1 - pct);
+}
+
+/**
+ * Rate a team's offense for a specific context (home or away).
+ * Uses home/road splits + recent form + partial data blending.
+ */
+export function rateOffense(teamLog, isHome = false) {
+  const config = loadConfig();
+  const minPA = config.minTeamPA || 200;
+  const minPartial = config.minTeamPAPartial || 50;
+
+  if (!teamLog) {
+    return {
+      multiplier: 1.0,
+      runsPerPA: config.leagueAvgRunsPerPA,
+      confidence: 'low',
+      source: 'default',
+    };
+  }
+
+  const split = isHome ? teamLog.home : teamLog.away;
+  const splitMinPA = minPA / 2;
+
+  let runsPerPA, confidence, source;
+
+  if (split &amp;&amp; split.pa >= splitMinPA) {
+    const rawRPA = split.runs / split.pa;
+    runsPerPA = blendWithLeagueAvg(rawRPA, split.pa, config) || config.leagueAvgRunsPerPA;
+    confidence = split.pa >= minPA ? 'high' : 'medium';
+    source = isHome ? 'home' : 'road';
+  } else {
+    const rawRPA = teamLog.total.runs / teamLog.total.pa;
+    runsPerPA = blendWithLeagueAvg(rawRPA, teamLog.total.pa, config) || config.leagueAvgRunsPerPA;
+    confidence = teamLog.total.pa >= minPA ? 'medium' : 'low';
+    source = 'total';
+  }
+
+  // Recent form adjustment (last 14 days)
+  let recentMult = 1.0;
+  if (teamLog.recent &amp;&amp; teamLog.recent.pa >= 50) {
+    const recentRPA = teamLog.recent.runs / teamLog.recent.pa;
+    const seasonRPA = teamLog.total.runs / teamLog.total.pa;
+    if (seasonRPA > 0) {
+      recentMult = recentRPA / seasonRPA;
+      // Clamp to prevent extreme swings (0.85 to 1.15)
+      recentMult = Math.max(0.85, Math.min(1.15, recentMult));
+    }
+  }
+
+  const adjustedRPA = runsPerPA * recentMult;
+  const multiplier = adjustedRPA / config.leagueAvgRunsPerPA;
+
+  return { multiplier, runsPerPA: adjustedRPA, confidence, source };
+}</code></pre>
+</div>
+
+<div class="file-section" id="park-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🏟️</span>
+    <span class="path">src/model/park.js</span>
+    <span class="desc">Park factors + altitude</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/model/park.js — Park factor adjustments
+
+import { loadTeams } from '../api/client.js';
+
+/**
+ * Get the park factor for a team's home stadium.
+ * @param {string} homeAbbr - Home team abbreviation
+ * @returns {number} Park factor (1.0 = neutral, &gt;1.0 = offense-friendly)
+ */
+export function getParkFactor(homeAbbr) {
+  const teams = loadTeams();
+  return teams.parkFactors[homeAbbr] || 1.0;
+}
+
+/**
+ * Get stadium info for a team.
+ * @param {string} abbr
+ * @returns {Object|null} Stadium data
+ */
+export function getStadium(abbr) {
+  const teams = loadTeams();
+  return teams.stadiums[abbr] || null;
+}
+
+/**
+ * Calculate altitude adjustment for Coors Field.
+ * Ball carries ~6% more per 1000ft above sea level.
+ * @param {number} altitudeFt
+ * @returns {number} Run multiplier adjustment
+ */
+export function altitudeAdjustment(altitudeFt) {
+  if (!altitudeFt || altitudeFt &lt; 1000) return 0;
+  // Conservative: ~2-3% per 1000ft above 1000 (Coors at 5200ft ≈ +0.08-0.12)
+  return ((altitudeFt - 1000) / 1000) * 0.03;
+}</code></pre>
+</div>
+
+<div class="file-section" id="weather-model-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🌬️</span>
+    <span class="path">src/model/weather.js</span>
+    <span class="desc">Wind, temp, humidity adjustments</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/model/weather.js — Wind, temperature, &amp; humidity adjustments
+
+import { loadConfig } from '../api/client.js';
+
+function windOutComponent(windMph, windDeg, cfBearing) {
+  const towardCF = (windDeg + 180) % 360;
+  let diff = Math.abs(towardCF - cfBearing);
+  if (diff > 180) diff = 360 - diff;
+  return windMph * Math.cos(diff * Math.PI / 180);
+}
+
+/**
+ * Calculate weather adjustment in runs.
+ * Now includes humidity factor.
+ *
+ * @param {Object} weather - { tempF, windMph, windDeg, humidity }
+ * @param {number} cfBearing - Center field bearing in degrees
+ * @param {Object} stadium - Stadium data (for dome check)
+ * @returns {number} Run adjustment (positive = more offense)
+ */
+export function weatherAdjustment(weather, cfBearing, stadium) {
+  if (!weather || stadium?.roof) return 0;
+
+  const config = loadConfig();
+  let adj = 0;
+
+  // Wind adjustment
+  const windOut = windOutComponent(weather.windMph, weather.windDeg, cfBearing);
+  if (windOut >= 0) {
+    adj += windOut * (config.windOutRunsPerMPH || 0.10);
+  } else {
+    adj += windOut * (config.windInRunsPerMPH || 0.08);
+  }
+
+  // Temperature adjustment
+  const tempF = weather.tempF || 70;
+  adj += ((tempF - 70) / 10) * (config.tempRunsPer10F || 0.15);
+
+  // High heat boost (&gt;90°F = more offense)
+  if (tempF > (config.tempHighThreshold || 90)) {
+    adj += config.tempHighBoost || 0.10;
+  }
+
+  // Humidity factor (high humidity = ball carries farther)
+  // Above 70% humidity adds offense, below 40% suppresses
+  const humidity = weather.humidity || 50;
+  if (humidity > 70) {
+    adj += ((humidity - 70) / 10) * (config.humidityRunsPer10Pct || 0.08);
+  } else if (humidity &lt; 40) {
+    adj -= ((40 - humidity) / 10) * (config.humidityRunsPer10Pct || 0.08);
+  }
+
+  return adj;
+}</code></pre>
+</div>
+
+<div class="file-section" id="tactician-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🧠</span>
+    <span class="path">src/model/tactician.js</span>
+    <span class="desc">Alpha layer — all edge metrics</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// scripts/edge-calc.js — Tactician edge calculator
+// Computes advanced metrics from raw data and returns adjustment values.
+
+// ═══════════════════════════════════════════════════════════════════
+// § PITCHER FATIGUE MODEL
+// ═══════════════════════════════════════════════════════════════════
+
+export function ttoPenalty(pitcherLog, avgLineupSpots = 9) {
+  if (!pitcherLog || !pitcherLog.starts) return 0;
+  const avgIP = pitcherLog.total?.ip / Math.max(pitcherLog.games || 1, 1);
+  if (avgIP >= 6.5) return 0.4;
+  if (avgIP >= 5.5) return 0.2;
+  return 0;
+}
+
+export function pitchCountFatigue(avgPitchCount) {
+  if (avgPitchCount >= 115) return 0.7;
+  if (avgPitchCount >= 105) return 0.4;
+  if (avgPitchCount >= 95) return 0.2;
+  if (avgPitchCount >= 85) return 0.0;
+  return -0.1;
+}
+
+export function daysRestAdjustment(daysRest) {
+  if (daysRest &lt;= 2) return 0.3;
+  if (daysRest === 3) return 0.0;
+  if (daysRest === 4) return -0.1;
+  return -0.2;
+}
+
+export function workloadDecay(seasonIP) {
+  if (seasonIP >= 200) return 0.2;
+  if (seasonIP >= 180) return 0.1;
+  if (seasonIP >= 140) return 0.05;
+  return 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § BATTED BALL QUALITY
+// ═══════════════════════════════════════════════════════════════════
+
+export function barrelRateAdjustment(barrelRate) {
+  const leagueAvg = 0.075;
+  const diff = barrelRate - leagueAvg;
+  return diff * 15;
+}
+
+export function hardHitAdjustment(hardHitRate) {
+  const leagueAvg = 0.34;
+  const diff = hardHitRate - leagueAvg;
+  return diff * 3;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § PLATOON SPLITS
+// ═══════════════════════════════════════════════════════════════════
+
+export function platoonAdvantage(lineupSplits, pitcherHand) {
+  let favorable = 0;
+  let unfavorable = 0;
+  for (const hitter of lineupSplits.slice(0, 9)) {
+    if (hitter.bats === 'S') continue;
+    if (pitcherHand === 'R') {
+      if (hitter.bats === 'L') favorable++;
+      else unfavorable++;
+    } else {
+      if (hitter.bats === 'R') favorable++;
+      else unfavorable++;
+    }
+  }
+  const net = favorable - unfavorable;
+  return net * 0.04;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § BULLPEN FATIGUE
+// ═══════════════════════════════════════════════════════════════════
+
+export function bullpenFatigue(bullpenUsage) {
+  if (!bullpenUsage) return 0;
+  let adj = 0;
+  if (bullpenUsage.consecutiveDays >= 4) adj += 0.4;
+  else if (bullpenUsage.consecutiveDays >= 3) adj += 0.2;
+  else if (bullpenUsage.consecutiveDays >= 2) adj += 0.1;
+  if (bullpenUsage.totalPitchesWeek >= 80) adj += 0.2;
+  else if (bullpenUsage.totalPitchesWeek >= 60) adj += 0.1;
+  if (bullpenUsage.closerAvailable === false) adj += 0.2;
+  return adj;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § WEATHER BALL-FLIGHT PHYSICS
+// ═══════════════════════════════════════════════════════════════════
+
+export function airDensity(tempF, humidity, altitudeFt, pressureInHg = 29.92) {
+  const tempC = (tempF - 32) * 5 / 9;
+  const T = tempC + 273.15;
+  const P = pressureInHg * 3386.39;
+  const alt_m = altitudeFt * 0.3048;
+  const P_alt = P * Math.exp(-alt_m / 8500);
+  const es = 610.78 * Math.exp((17.27 * tempC) / (tempC + 237.3));
+  const pv = (humidity / 100) * es;
+  const Rd = 287.05;
+  const Rv = 461.495;
+  const rho = (P_alt - pv) / (Rd * T) + pv / (Rv * T);
+  return rho;
+}
+
+export function carryMultiplier(density) {
+  const standard = 1.225;
+  return 1 + (1 - density / standard) * 1.5;
+}
+
+export function weatherPhysicsAdjustment(weather, altitudeFt = 0, cfBearing = 0) {
+  if (!weather) return 0;
+  const density = airDensity(weather.tempF || 70, weather.humidity || 50, altitudeFt);
+  const carry = carryMultiplier(density);
+  let adj = (carry - 1) * 100 * 0.08;
+  if (weather.windMph &amp;&amp; cfBearing) {
+    const towardCF = (weather.windDeg + 180) % 360;
+    let diff = Math.abs(towardCF - cfBearing);
+    if (diff > 180) diff = 360 - diff;
+    const windComponent = weather.windMph * Math.cos(diff * Math.PI / 180);
+    adj += windComponent >= 0 ? windComponent * 0.10 : windComponent * 0.08;
+  }
+  return adj;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § SITUATIONAL FACTORS
+// ═══════════════════════════════════════════════════════════════════
+
+export function travelFatigue(travel) {
+  if (!travel) return 0;
+  let adj = 0;
+  if (travel.crossCountry) adj += 0.15;
+  else if (travel.timezones >= 2) adj += 0.10;
+  else if (travel.timezones === 1) adj += 0.05;
+  if (travel.daysSinceTravel === 0) return adj;
+  if (travel.daysSinceTravel === 1) return adj * 0.5;
+  return 0;
+}
+
+export function schedulingSpot(spot) {
+  if (!spot) return 0;
+  let adj = 0;
+  if (spot.dayGameAfterNight) adj += 0.15;
+  if (spot.gamesInRow >= 14) adj += 0.3;
+  else if (spot.gamesInRow >= 10) adj += 0.2;
+  else if (spot.gamesInRow >= 7) adj += 0.1;
+  if (spot.daysSinceOff >= 6) adj += 0.2;
+  else if (spot.daysSinceOff >= 4) adj += 0.1;
+  return adj;
+}
+
+export function lineupDepth(obpStats) {
+  if (!obpStats || obpStats.length &lt; 9) return 0;
+  const avgOBP = obpStats.reduce((s, v) => s + v, 0) / obpStats.length;
+  const leagueAvg = 0.310;
+  return (avgOBP - leagueAvg) * 10;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// § COMBINED TACTICIAN SCORE
+// ═══════════════════════════════════════════════════════════════════
+
+export function tacticianScore(data) {
+  const breakdown = {};
+  let total = 0;
+
+  if (data.pitcher) {
+    breakdown.tto = ttoPenalty(data.pitcher);
+    breakdown.pitchCount = pitchCountFatigue(data.pitcher.avgPitchCount);
+    breakdown.workload = workloadDecay(data.pitcher.seasonIP);
+    total += breakdown.tto + breakdown.pitchCount + breakdown.workload;
+  }
+  if (data.bullpen) {
+    breakdown.bullpen = bullpenFatigue(data.bullpen);
+    total += breakdown.bullpen;
+  }
+  if (data.weather &amp;&amp; data.altitudeFt !== undefined) {
+    breakdown.weather = weatherPhysicsAdjustment(data.weather, data.altitudeFt, data.cfBearing);
+    total += breakdown.weather;
+  }
+  if (data.travel) {
+    breakdown.travel = travelFatigue(data.travel);
+    total += breakdown.travel;
+  }
+  if (data.scheduling) {
+    breakdown.scheduling = schedulingSpot(data.scheduling);
+    total += breakdown.scheduling;
+  }
+  if (data.barrelRate !== undefined) {
+    breakdown.barrel = barrelRateAdjustment(data.barrelRate);
+    total += breakdown.barrel;
+  }
+  if (data.lineupOBP) {
+    breakdown.lineup = lineupDepth(data.lineupOBP);
+    total += breakdown.lineup;
+  }
+
+  const factorsComputed = Object.keys(breakdown).filter(k => breakdown[k] !== 0).length;
+  const totalFactors = Object.keys(breakdown).length;
+  const confidence = totalFactors >= 5 ? 'high' : totalFactors >= 3 ? 'medium' : 'low';
+
+  return {
+    total: Math.round(total * 100) / 100,
+    breakdown,
+    factorsComputed,
+    confidence,
+  };
+}</code></pre>
+</div>
+
+<div class="file-section" id="project-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🔮</span>
+    <span class="path">src/model/project.js</span>
+    <span class="desc">Main projection engine</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/model/project.js — Final projection engine (v2.1 with park-adjusted pitchers)
+
+import { ratePitcher } from './fip.js';
+import { rateOffense } from './offense.js';
+import { getParkFactor, altitudeAdjustment, getStadium } from './park.js';
+import { weatherAdjustment } from './weather.js';
+import { loadConfig } from '../api/client.js';
+
+/**
+ * Project total runs for a game (v2.1).
+ */
+export function project({
+  homeAbbr,
+  awayPitcherLog,
+  homePitcherLog,
+  awayTeamLog,
+  homeTeamLog,
+  weather,
+}) {
+  const config = loadConfig();
+  const LG = config.leagueAvgRunsPerGame;
+
+  // Park factor for this stadium
+  const parkFactor = getParkFactor(homeAbbr);
+  const stadium = getStadium(homeAbbr);
+  const altAdj = altitudeAdjustment(stadium?.altitude || 0);
+  const totalPark = parkFactor + altAdj;
+
+  // Rate pitchers (raw, before park adjustment)
+  const awayPitcher = ratePitcher(awayPitcherLog, false);
+  const homePitcher = ratePitcher(homePitcherLog, true);
+
+  // Park-adjust pitcher ERAs
+  const awayPitcherAdj = awayPitcher.blended * totalPark;
+  const homePitcherAdj = homePitcher.blended * totalPark;
+
+  // Rate offenses (with home/road splits)
+  const awayOffense = rateOffense(awayTeamLog, false);
+  const homeOffense = rateOffense(homeTeamLog, true);
+
+  // Project runs for each team
+  const awayRunsRaw = LG * awayOffense.multiplier * (homePitcherAdj / LG);
+  const homeRunsRaw = LG * homeOffense.multiplier * (awayPitcherAdj / LG);
+
+  // Weather adjustment
+  const windAdj = weatherAdjustment(weather, stadium?.cfBearing || 0, stadium);
+
+  // Final projection
+  const total = awayRunsRaw + homeRunsRaw + windAdj;
+
+  // Confidence based on data quality
+  const confidences = [
+    awayPitcher.confidence,
+    homePitcher.confidence,
+    awayOffense.confidence,
+    homeOffense.confidence,
+  ];
+  const lowCount = confidences.filter(c => c === 'low').length;
+  const overallConfidence = lowCount >= 2 ? 'low' : lowCount === 1 ? 'medium' : 'high';
+
+  return {
+    projected: Math.round(total * 100) / 100,
+    confidence: overallConfidence,
+    breakdown: {
+      awayStarter: { name: null, ...awayPitcher, parkAdjusted: awayPitcherAdj },
+      homeStarter: { name: null, ...homePitcher, parkAdjusted: homePitcherAdj },
+      awayOffense: { ...awayOffense },
+      homeOffense: { ...homeOffense },
+      parkFactor,
+      altitudeAdj: altAdj,
+      totalPark,
+      weatherAdj: windAdj,
+    },
+  };
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- OUTPUT LAYER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section-label">Output Layer</div>
+
+<div class="file-section" id="console-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🖥️</span>
+    <span class="path">src/output/console.js</span>
+    <span class="desc">Terminal table output</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/output/console.js — Pretty terminal output
+
+const CONFIDENCE_ICONS = { high: '★★★', medium: '★★☆', low: '★☆☆' };
+
+export function printResults(results) {
+  console.log('\n═══════════════════════════════════════════════════════════════════════════');
+  console.log('MATCHUP                        MODEL   LINE    EDGE    PICK    CONF');
+  console.log('═══════════════════════════════════════════════════════════════════════════');
+
+  for (const r of results) {
+    const matchup = `${r.away.abbr.padEnd(4)} @ ${r.home.abbr.padEnd(4)}`;
+    const model = (r.combined || r.projected).toFixed(2).padStart(5);
+    const line = r.line ? r.line.toFixed(1).padStart(5) : '  —  ';
+    const edge = r.edge != null ? (r.edge > 0 ? '+' : '') + r.edge.toFixed(2) : '  —  ';
+    const pick = r.pick || '—';
+    const conf = CONFIDENCE_ICONS[r.confidence] || '☆☆☆';
+
+    let pickColor = '';
+    if (pick === 'OVER') pickColor = '\x1b[32m';
+    else if (pick === 'UNDER') pickColor = '\x1b[34m';
+    else if (pick === 'NO PLAY') pickColor = '\x1b[90m';
+    const reset = pickColor ? '\x1b[0m' : '';
+
+    console.log(
+      `${matchup}    ${model}  ${line}  ${edge.padStart(6)}  ${pickColor}${pick.padEnd(8)}${reset}  ${conf}`
+    );
+  }
+
+  console.log('═══════════════════════════════════════════════════════════════════════════');
+
+  const warnings = results.flatMap(r => r.warnings || []);
+  if (warnings.length > 0) {
+    console.log('\n⚠️  WARNINGS:');
+    for (const w of warnings) console.log(`  ${w}`);
+  }
+
+  console.log('');
+}
+
+export function printSummary(results) {
+  const picks = results.filter(r => r.pick &amp;&amp; r.pick !== 'NO PLAY');
+  const overs = picks.filter(r => r.pick === 'OVER');
+  const unders = picks.filter(r => r.pick === 'UNDER');
+  const noPlay = results.filter(r => r.pick === 'NO PLAY');
+
+  console.log(`\n📊 SUMMARY: ${picks.length} picks (${overs.length} OVER, ${unders.length} UNDER) | ${noPlay.length} no play`);
+  console.log('');
+}</code></pre>
+</div>
+
+<div class="file-section" id="tactician-out-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">🧠</span>
+    <span class="path">src/output/tactician.js</span>
+    <span class="desc">Tactician breakdown display</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/output/tactician.js — Display tactician analysis per game
+
+export function printTactician(matchup, tactician) {
+  if (!tactician) return;
+
+  const sign = tactician.total > 0 ? '+' : '';
+  console.log(`  🧠 Tactician: ${sign}${tactician.total.toFixed(2)} runs (${tactician.confidence} confidence)`);
+
+  const entries = Object.entries(tactician.breakdown).filter(([, v]) => Math.abs(v) > 0.01);
+  if (entries.length > 0) {
+    for (const [key, val] of entries) {
+      const label = {
+        tto: '3rd-time-through',
+        pitchCount: 'Pitch count fatigue',
+        workload: 'Season workload',
+        bullpen: 'Bullpen fatigue',
+        weather: 'Weather physics',
+        travel: 'Travel fatigue',
+        scheduling: 'Scheduling spot',
+        barrel: 'Barrel rate',
+        lineup: 'Lineup depth',
+        hardHit: 'Hard-hit rate',
+        platoon: 'Platoon advantage',
+      }[key] || key;
+      const v = val > 0 ? `+${val.toFixed(2)}` : val.toFixed(2);
+      console.log(`    ${label}: ${v}`);
+    }
+  }
+}
+
+export function printCombined(result) {
+  const base = result.projected;
+  const tact = result.tactician?.total || 0;
+  const combined = base + tact;
+  const sign = tact > 0 ? '+' : '';
+
+  if (Math.abs(tact) > 0.01) {
+    console.log(`  📊 Base: ${base.toFixed(2)} → Combined: ${combined.toFixed(2)} (${sign}${tact.toFixed(2)} tactician)`);
+  }
+}</code></pre>
+</div>
+
+<div class="file-section" id="json-js">
+  <div class="file-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <span class="icon">💾</span>
+    <span class="path">src/output/json.js</span>
+    <span class="desc">Save results to JSON</span>
+    <span class="toggle">▼</span>
+  </div>
+  <pre><code class="language-javascript">// src/output/json.js — Save projections to JSON
+
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT = join(__dirname, '..', '..');
+const RESULTS_DIR = join(ROOT, 'data', 'results');
+
+export function saveResults(date, results) {
+  if (!existsSync(RESULTS_DIR)) {
+    mkdirSync(RESULTS_DIR, { recursive: true });
+  }
+
+  const filePath = join(RESULTS_DIR, `${date}.json`);
+  const output = {
+    date,
+    timestamp: new Date().toISOString(),
+    games: results.map(r => ({
+      matchup: `${r.away.abbr} @ ${r.home.abbr}`,
+      away: r.away.abbr,
+      home: r.home.abbr,
+      projected: r.projected,
+      combined: r.combined || r.projected,
+      line: r.line,
+      edge: r.edge,
+      pick: r.pick,
+      confidence: r.confidence,
+      breakdown: r.breakdown || null,
+      tactician: r.tactician || null,
+    })),
+    summary: {
+      totalGames: results.length,
+      picksMade: results.filter(r => r.pick &amp;&amp; r.pick !== 'NO PLAY').length,
+      overs: results.filter(r => r.pick === 'OVER').length,
+      unders: results.filter(r => r.pick === 'UNDER').length,
+      noPlay: results.filter(r => r.pick === 'NO PLAY').length,
+    },
+  };
+
+  writeFileSync(filePath, JSON.stringify(output, null, 2));
+  console.log(`📁 Saved to ${filePath}`);
+  return filePath;
+}</code></pre>
+</div>
+
+</div>
+
+<footer>
+  ⚾ SportsBotv2 — Exported April 23, 2026 — 19 source files
+</footer>
+
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{
+  "date": "2026-04-30",
+  "picks": [
+    {
+      "away": "STL",
+      "home": "PIT",
+      "pred": 8.34,
+      "odds": 7.0,
+      "edge": 1.34,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "SF",
+      "home": "PHI",
+      "pred": 11.53,
+      "odds": 7.5,
+      "edge": 4.03,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "SF",
+      "home": "PHI",
+      "pred": 10.89,
+      "odds": 7.5,
+      "edge": 3.39,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "WSH",
+      "home": "NYM",
+      "pred": 7.31,
+      "odds": 7.5,
+      "edge": -0.19,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "TOR",
+      "home": "MIN",
+      "pred": 8.28,
+      "odds": 8.0,
+      "edge": 0.28,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "ARI",
+      "home": "MIL",
+      "pred": 9.74,
+      "odds": 7.5,
+      "edge": 2.24,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "COL",
+      "home": "CIN",
+      "pred": 7.84,
+      "odds": 9.0,
+      "edge": -1.16,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "UNDER"
+    },
+    {
+      "away": "HOU",
+      "home": "BAL",
+      "pred": 10.15,
+      "odds": 9.0,
+      "edge": 1.15,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "HOU",
+      "home": "BAL",
+      "pred": 11.54,
+      "odds": 9.0,
+      "edge": 2.54,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "DET",
+      "home": "ATL",
+      "pred": 8.09,
+      "odds": 8.5,
+      "edge": -0.41,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "KC",
+      "home": "ATH",
+      "pred": 9.58,
+      "odds": 9.5,
+      "edge": 0.08,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    }
+  ]
+}

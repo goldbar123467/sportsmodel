@@ -1,0 +1,77 @@
+{
+  "date": "2026-04-27",
+  "picks": [
+    {
+      "away": "BOS",
+      "home": "TOR",
+      "pred": 8.81,
+      "odds": 7.0,
+      "edge": 1.81,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "NYY",
+      "home": "TEX",
+      "pred": 6.23,
+      "odds": 8.0,
+      "edge": -1.77,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "UNDER"
+    },
+    {
+      "away": "CHC",
+      "home": "SD",
+      "pred": 7.89,
+      "odds": 8.0,
+      "edge": -0.11,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "STL",
+      "home": "PIT",
+      "pred": 10.04,
+      "odds": 8.5,
+      "edge": 1.54,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "SEA",
+      "home": "MIN",
+      "pred": 8.92,
+      "odds": 8.5,
+      "edge": 0.42,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "MIA",
+      "home": "LAD",
+      "pred": 8.2,
+      "odds": 8.5,
+      "edge": -0.3,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "TB",
+      "home": "CLE",
+      "pred": 6.3,
+      "odds": 7.5,
+      "edge": -1.2,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "UNDER"
+    },
+    {
+      "away": "LAA",
+      "home": "CWS",
+      "pred": 8.16,
+      "odds": 8.5,
+      "edge": -0.34,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    }
+  ]
+}

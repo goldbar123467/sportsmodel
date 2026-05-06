@@ -1,0 +1,10 @@
+beautifulsoup4
+duckdb
+lxml
+numpy
+optuna
+pandas
+requests
+scikit-learn
+shap
+xgboost

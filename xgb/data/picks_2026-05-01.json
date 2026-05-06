@@ -1,0 +1,140 @@
+{
+  "date": "2026-05-01",
+  "picks": [
+    {
+      "away": "MIL",
+      "home": "WSH",
+      "pred": 11.51,
+      "odds": 8.0,
+      "edge": 3.51,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "SF",
+      "home": "TB",
+      "pred": 8.25,
+      "odds": 7.5,
+      "edge": 0.75,
+      "conf": "\u2605\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "LAD",
+      "home": "STL",
+      "pred": 9.44,
+      "odds": 8.5,
+      "edge": 0.94,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "KC",
+      "home": "SEA",
+      "pred": 7.95,
+      "odds": 7.0,
+      "edge": 0.95,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "CWS",
+      "home": "SD",
+      "pred": 9.31,
+      "odds": 8.0,
+      "edge": 1.31,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "CIN",
+      "home": "PIT",
+      "pred": 7.96,
+      "odds": 8.5,
+      "edge": -0.54,
+      "conf": "\u2605\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "BAL",
+      "home": "NYY",
+      "pred": 9.87,
+      "odds": 8.5,
+      "edge": 1.37,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "OVER"
+    },
+    {
+      "away": "TOR",
+      "home": "MIN",
+      "pred": 8.04,
+      "odds": 8.5,
+      "edge": -0.46,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "PHI",
+      "home": "MIA",
+      "pred": 8.8,
+      "odds": 8.0,
+      "edge": 0.8,
+      "conf": "\u2605\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "NYM",
+      "home": "LAA",
+      "pred": 8.56,
+      "odds": 9.0,
+      "edge": -0.44,
+      "conf": "\u2606\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "TEX",
+      "home": "DET",
+      "pred": 9.71,
+      "odds": 7.5,
+      "edge": 2.21,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "ATL",
+      "home": "COL",
+      "pred": 10.25,
+      "odds": 11.0,
+      "edge": -0.75,
+      "conf": "\u2605\u2606\u2606",
+      "pick": "PASS"
+    },
+    {
+      "away": "ARI",
+      "home": "CHC",
+      "pred": 8.95,
+      "odds": 7.0,
+      "edge": 1.95,
+      "conf": "\u2605\u2605\u2605",
+      "pick": "OVER"
+    },
+    {
+      "away": "HOU",
+      "home": "BOS",
+      "pred": 8.64,
+      "odds": 9.5,
+      "edge": -0.86,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "UNDER"
+    },
+    {
+      "away": "CLE",
+      "home": "ATH",
+      "pred": 7.35,
+      "odds": 8.5,
+      "edge": -1.15,
+      "conf": "\u2605\u2605\u2606",
+      "pick": "UNDER"
+    }
+  ]
+}

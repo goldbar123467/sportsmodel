@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+logs/
+xgb/logs/
+*.duckdb
+*.duckdb.wal
+!xgb/mlb.duckdb
