@@ -13,19 +13,48 @@ from pathlib import Path
 import requests
 
 from db import Database, DB_PATH
+from util import validate_date
 
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_DIR = SCRIPT_DIR.parent / "config"
 NWS_BASE_URL = "https://api.weather.gov"
+WEATHERBIT_BASE_URL = "https://api.weatherbit.io/v2.0"
+ENV_PATH = SCRIPT_DIR.parent / ".env"
 DEFAULT_USER_AGENT = os.environ.get(
     "NWS_USER_AGENT",
     "SportsBotv2 MLB Weather (set NWS_USER_AGENT with contact info)",
 )
+MAX_WEATHERBIT_RETRY_AFTER_SECONDS = 60
+
+
+class WeatherbitRateLimitError(RuntimeError):
+    def __init__(self, retry_after):
+        super().__init__(f"Weatherbit rate limited; retry after {retry_after} seconds")
+        self.retry_after = retry_after
 
 
 def load_team_data():
     with open(CONFIG_DIR / "teams.json") as f:
         return json.load(f)
+
+
+def load_env_file(path=ENV_PATH):
+    if not path.exists():
+        return
+    for raw_line in path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        os.environ[key] = value.strip().strip('"').strip("'")
+
+
+def weatherbit_api_key():
+    load_env_file()
+    return os.environ.get("WEATHERBIT_API_KEY")
 
 
 def nws_headers(user_agent=None):
@@ -80,6 +109,33 @@ def fetch_json(session, url, params=None, user_agent=None, timeout=20):
             url,
             params=params,
             headers=nws_headers(user_agent),
+            timeout=timeout,
+        )
+    if response.status_code != 200:
+        return {}
+    return response.json()
+
+
+def fetch_weatherbit_json(
+    session,
+    path,
+    params,
+    timeout=20,
+    max_retry_after=MAX_WEATHERBIT_RETRY_AFTER_SECONDS,
+):
+    response = session.get(
+        f"{WEATHERBIT_BASE_URL}{path}",
+        params=params,
+        timeout=timeout,
+    )
+    if response.status_code == 429:
+        retry = int(response.headers.get("Retry-After", 5))
+        if retry > max_retry_after:
+            raise WeatherbitRateLimitError(retry)
+        time.sleep(retry)
+        response = session.get(
+            f"{WEATHERBIT_BASE_URL}{path}",
+            params=params,
             timeout=timeout,
         )
     if response.status_code != 200:
@@ -371,6 +427,120 @@ def fetch_forecast_weather(game, stadium, session=requests, user_agent=None):
     return forecast_period_to_weather(period, stadium)
 
 
+def weatherbit_timestamp(row):
+    return (
+        row.get("timestamp_utc")
+        or row.get("timestamp_local")
+        or row.get("datetime")
+        or row.get("ts")
+    )
+
+
+def select_weatherbit_hour(rows, target_time):
+    best = None
+    best_delta = None
+    for row in rows:
+        ts = parse_time(weatherbit_timestamp(row))
+        if not ts:
+            continue
+        delta = abs((ts - target_time).total_seconds())
+        if best_delta is None or delta < best_delta:
+            best = row
+            best_delta = delta
+    return best
+
+
+def weatherbit_station(data):
+    sources = data.get("sources") or []
+    if isinstance(sources, list) and sources:
+        return sources[0]
+    return None
+
+
+def weatherbit_row_to_weather(row, stadium, source, station=None):
+    wind_dir = direction_to_degrees(row.get("wind_dir"))
+    precip = row.get("pop")
+    if precip is None:
+        precip = row.get("precip")
+    observed = parse_time(weatherbit_timestamp(row))
+    return {
+        "weather_temp_f": round_or_none(row.get("temp"), 1),
+        "weather_wind_mph": round_or_none(row.get("wind_spd"), 1),
+        "weather_wind_dir_degrees": round_or_none(wind_dir, 1),
+        "weather_wind_out_cf": wind_out_to_cf(wind_dir, stadium.get("cfBearing")),
+        "weather_humidity_pct": round_or_none(row.get("rh"), 1),
+        "weather_precip_pct": round_or_none(precip, 1),
+        "weather_pressure_mb": round_or_none(row.get("pres"), 1),
+        "weather_is_indoor": False,
+        "weather_source": source,
+        "weather_station": station,
+        "weather_observed_at": observed.isoformat() if observed else None,
+    }
+
+
+def fetch_weatherbit_history_weather(game, stadium, session=requests, key=None):
+    key = key or weatherbit_api_key()
+    if not key:
+        return empty_weather("weatherbit:history-hourly:missing-key")
+
+    target_time = game_time_utc(game)
+    params = {
+        "lat": stadium["lat"],
+        "lon": stadium["lon"],
+        "start_date": target_time.date().isoformat(),
+        "end_date": (target_time + timedelta(days=1)).date().isoformat(),
+        "units": "I",
+        "key": key,
+    }
+    data = fetch_weatherbit_json(session, "/history/hourly", params)
+    row = select_weatherbit_hour(data.get("data", []), target_time)
+    if not row:
+        return empty_weather("weatherbit:history-hourly:missing")
+    return weatherbit_row_to_weather(
+        row,
+        stadium,
+        "weatherbit:history-hourly",
+        station=weatherbit_station(data),
+    )
+
+
+def fetch_weatherbit_forecast_weather(game, stadium, session=requests, key=None, now_utc=None):
+    key = key or weatherbit_api_key()
+    if not key:
+        return empty_weather("weatherbit:forecast-hourly:missing-key")
+
+    target_time = game_time_utc(game)
+    now = parse_time(now_utc) if now_utc else datetime.now(timezone.utc)
+    hours_ahead = max(1, int(math.ceil((target_time - now).total_seconds() / 3600)) + 2)
+    params = {
+        "lat": stadium["lat"],
+        "lon": stadium["lon"],
+        "hours": min(hours_ahead, 240),
+        "units": "I",
+        "key": key,
+    }
+    data = fetch_weatherbit_json(session, "/forecast/hourly", params)
+    row = select_weatherbit_hour(data.get("data", []), target_time)
+    if not row:
+        return empty_weather("weatherbit:forecast-hourly:missing")
+    return weatherbit_row_to_weather(
+        row,
+        stadium,
+        "weatherbit:forecast-hourly",
+        station=weatherbit_station(data),
+    )
+
+
+def weather_is_usable(weather):
+    source = str(weather.get("weather_source", ""))
+    return not (
+        source.endswith(":missing")
+        or source.endswith(":missing-key")
+        or source.endswith(":error")
+        or source.endswith(":unavailable")
+    )
+
+
 def fetch_weather_for_game(game, stadium, session=requests, now_utc=None, user_agent=None):
     if not stadium or "lat" not in stadium or "lon" not in stadium:
         return empty_weather("missing-stadium")
@@ -379,17 +549,44 @@ def fetch_weather_for_game(game, stadium, session=requests, now_utc=None, user_a
 
     target_time = game_time_utc(game)
     now = parse_time(now_utc) if now_utc else datetime.now(timezone.utc)
+    key = weatherbit_api_key()
+    if key:
+        try:
+            if target_time > now:
+                weather = fetch_weatherbit_forecast_weather(
+                    game,
+                    stadium,
+                    session=session,
+                    key=key,
+                    now_utc=now,
+                )
+            else:
+                weather = fetch_weatherbit_history_weather(
+                    game,
+                    stadium,
+                    session=session,
+                    key=key,
+                )
+            if weather_is_usable(weather):
+                return weather
+        except WeatherbitRateLimitError:
+            raise
+        except Exception:
+            pass
+
     if target_time > now:
         return fetch_forecast_weather(game, stadium, session=session, user_agent=user_agent)
     return fetch_observation_weather(game, stadium, session=session, user_agent=user_agent)
 
 
-def needs_weather(row, force=False, retry_missing=False):
+def needs_weather(row, force=False, retry_missing=False, retry_unavailable=False):
     if force:
         return True
     source = row.get("weather_source")
     if not source:
         return True
+    if retry_unavailable:
+        return str(source).endswith(":missing") or str(source).endswith(":unavailable")
     return retry_missing and str(source).endswith(":missing")
 
 
@@ -399,6 +596,7 @@ def backfill_weather(
     end_date=None,
     force=False,
     retry_missing=False,
+    retry_unavailable=False,
     limit=None,
     sleep_s=0.2,
     session=requests,
@@ -411,7 +609,10 @@ def backfill_weather(
     updated = 0
     missing = 0
     unavailable = 0
+    rate_limited = False
+    retry_after_seconds = None
     now = parse_time(now_utc) if now_utc else datetime.now(timezone.utc)
+    has_weatherbit = bool(weatherbit_api_key())
     try:
         where = ["1=1"]
         params = []
@@ -423,6 +624,11 @@ def backfill_weather(
             params.append(end_date)
         if force:
             pass
+        elif retry_unavailable:
+            where.append(
+                "(weather_source IS NULL OR weather_source LIKE '%:missing' "
+                "OR weather_source LIKE '%:unavailable')"
+            )
         elif retry_missing:
             where.append("(weather_source IS NULL OR weather_source LIKE '%:missing')")
         else:
@@ -438,7 +644,12 @@ def backfill_weather(
             rows = rows[:limit]
 
         for row in rows:
-            if not needs_weather(row, force=force, retry_missing=retry_missing):
+            if not needs_weather(
+                row,
+                force=force,
+                retry_missing=retry_missing,
+                retry_unavailable=retry_unavailable,
+            ):
                 continue
             stadium = stadiums.get(row["home_team"], {})
             game = {
@@ -458,10 +669,16 @@ def backfill_weather(
                     stale_cutoff is not None
                     and target < stale_cutoff
                     and not stadium.get("roof")
+                    and not has_weatherbit
                 ):
                     weather = empty_weather("api.weather.gov:observations:unavailable")
                 else:
                     weather = fetch_weather_for_game(game, stadium, session=session, now_utc=now)
+            except WeatherbitRateLimitError as exc:
+                print(f"weatherbit rate limited; retry after {exc.retry_after} seconds")
+                rate_limited = True
+                retry_after_seconds = exc.retry_after
+                break
             except Exception as exc:
                 print(f"weather failed for {row['game_pk']}: {exc}")
                 weather = empty_weather("api.weather.gov:error")
@@ -482,6 +699,8 @@ def backfill_weather(
         "missing": missing,
         "unavailable": unavailable,
         "checked": updated + missing + unavailable,
+        "rate_limited": rate_limited,
+        "retry_after_seconds": retry_after_seconds,
     }
 
 
@@ -492,17 +711,21 @@ def main():
     parser.add_argument("--end-date")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--retry-missing", action="store_true")
+    parser.add_argument("--retry-unavailable", action="store_true")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--sleep", type=float, default=0.2)
     parser.add_argument("--max-observation-age-days", type=int)
     args = parser.parse_args()
+    start_date = validate_date(args.start_date, "start-date")
+    end_date = validate_date(args.end_date, "end-date")
 
     result = backfill_weather(
         db_path=args.db_path,
-        start_date=args.start_date,
-        end_date=args.end_date,
+        start_date=start_date,
+        end_date=end_date,
         force=args.force,
         retry_missing=args.retry_missing,
+        retry_unavailable=args.retry_unavailable,
         limit=args.limit,
         sleep_s=args.sleep,
         max_observation_age_days=args.max_observation_age_days,

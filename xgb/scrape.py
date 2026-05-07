@@ -29,6 +29,7 @@ import requests
 import pandas as pd
 
 from db import Database
+from util import validate_date
 import weather as nws_weather
 
 # Paths
@@ -769,7 +770,7 @@ def main():
     args = parser.parse_args()
 
     if args.odds_only:
-        date_str = args.date or datetime.now().strftime('%Y-%m-%d')
+        date_str = validate_date(args.date or datetime.now().strftime('%Y-%m-%d'))
         scrape_odds_only(date_str, include_weather=not args.skip_weather)
 
     elif args.backfill:
@@ -796,15 +797,16 @@ def main():
             print(f'  Avg total runs: {avg:.2f}')
 
     elif args.date:
-        records = scrape_date(args.date, args.season, include_weather=not args.skip_weather)
-        outfile = DATA_DIR / f'games_{args.date}.json'
+        date_str = validate_date(args.date)
+        records = scrape_date(date_str, args.season, include_weather=not args.skip_weather)
+        outfile = DATA_DIR / f'games_{date_str}.json'
         with open(outfile, 'w') as f:
             json.dump(records, f, indent=2)
         print(f'\n📁 Saved {len(records)} records to {outfile}')
 
     else:
         # Default: scrape today
-        today = datetime.now().strftime('%Y-%m-%d')
+        today = validate_date(datetime.now().strftime('%Y-%m-%d'))
         records = scrape_date(today, args.season, include_weather=not args.skip_weather)
         outfile = DATA_DIR / f'games_{today}.json'
         with open(outfile, 'w') as f:

@@ -1,6 +1,7 @@
 import sys
 import unittest
 import importlib
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -13,6 +14,8 @@ import scrape  # noqa: E402
 import train  # noqa: E402
 import pick_today  # noqa: E402
 import recordkeeping  # noqa: E402
+import preflight  # noqa: E402
+from util import validate_date  # noqa: E402
 from db import Database  # noqa: E402
 
 
@@ -53,6 +56,18 @@ class QueuedSession:
         if not self.payloads:
             return FakeResponse({}, status_code=404)
         return FakeResponse(self.payloads.pop(0))
+
+
+class StatusSession:
+    def __init__(self, status_code, payload=None, headers=None):
+        self.status_code = status_code
+        self.payload = payload or {}
+        self.headers = headers or {}
+        self.calls = []
+
+    def get(self, url, **kwargs):
+        self.calls.append({"url": url, **kwargs})
+        return FakeResponse(self.payload, status_code=self.status_code, headers=self.headers)
 
 
 class XgbProductionTests(unittest.TestCase):
@@ -198,6 +213,58 @@ class XgbProductionTests(unittest.TestCase):
         self.assertIsNone(games[0]["home_score"])
         self.assertIsNone(games[0]["total_runs"])
 
+    def test_pick_today_prediction_query_uses_prior_stats_only(self):
+        db_path = Path("/tmp/sportsbotv2_pick_today_asof_test.duckdb")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2026-05-06",
+                    "game_pk": 1001,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "venue": "Fenway Park",
+                    "status": "Scheduled",
+                    "away_pitcher_id": 1,
+                    "home_pitcher_id": 2,
+                    "stadium": {
+                        "name": "Fenway Park",
+                        "roof": False,
+                        "altitude": 10,
+                        "cfBearing": 46,
+                    },
+                }
+            )
+            for stat_date, away_avg, home_avg in (
+                ("2026-05-05", 0.201, 0.302),
+                ("2026-05-06", 0.999, 0.888),
+            ):
+                db.conn.execute(
+                    """
+                    INSERT OR REPLACE INTO team_hitting
+                        (date, team, pa, avg, obp, slg, ops, hr, runs, bb, k,
+                         babip, iso, bb_rate, k_rate, hr_rate)
+                    VALUES
+                        (?, 'NYY', 100, ?, .310, .400, .710, 10, 50, 20, 70,
+                         .290, .150, .080, .220, .030),
+                        (?, 'BOS', 100, ?, .320, .410, .730, 11, 51, 21, 71,
+                         .300, .160, .081, .221, .031)
+                    """,
+                    [stat_date, away_avg, stat_date, home_avg],
+                )
+
+            games = pick_today.load_games_for_prediction(db, "2026-05-06")
+        finally:
+            db.close()
+            if db_path.exists():
+                db_path.unlink()
+
+        self.assertEqual(len(games), 1)
+        self.assertAlmostEqual(games.iloc[0]["away_avg"], 0.201)
+        self.assertAlmostEqual(games.iloc[0]["home_avg"], 0.302)
+
     def test_settle_picks_builds_idempotent_internal_performance_summary(self):
         existing = recordkeeping.empty_performance(baseline=False)
         picks = [
@@ -222,6 +289,71 @@ class XgbProductionTests(unittest.TestCase):
         self.assertEqual(second["by_pick_type"]["UNDER"]["record"], "0-0-1")
         self.assertEqual(second["by_confidence"]["Medium"]["record"], "1-0-1")
         self.assertEqual(second["by_confidence"]["High"]["record"], "0-1")
+
+    def test_recordkeeping_exports_csv_and_validates_dates(self):
+        performance = recordkeeping.empty_performance(baseline=False)
+        performance = recordkeeping.apply_settled_date(
+            performance,
+            "2026-05-06",
+            [{"away": "NYY", "home": "BOS", "pick": "OVER", "odds": 8.5, "pred": 9.7, "edge": 1.2}],
+            [{"game_pk": 1, "away_team": "NYY", "home_team": "BOS", "away_score": 5, "home_score": 4, "total_runs": 9}],
+        )
+        perf_path = Path("/tmp/sportsbotv2_perf_export_test.json")
+        picks_path = Path("/tmp/sportsbotv2_picks_export_test.csv")
+        daily_path = Path("/tmp/sportsbotv2_daily_export_test.csv")
+        try:
+            recordkeeping.save_performance(performance, perf_path)
+            recordkeeping.export_settled_picks_csv(perf_path, picks_path)
+            recordkeeping.export_daily_csv(perf_path, daily_path)
+
+            self.assertIn("date,game_pk,away,home,pick", picks_path.read_text())
+            self.assertIn("2026-05-06,1,NYY,BOS,OVER", picks_path.read_text())
+            self.assertIn("date,label,record,wins,losses,pushes,picks,win_pct", daily_path.read_text())
+            self.assertEqual(validate_date("2026-05-06"), "2026-05-06")
+            with self.assertRaises(ValueError):
+                validate_date("2026-5-6")
+        finally:
+            for path in (perf_path, picks_path, daily_path):
+                if path.exists():
+                    path.unlink()
+
+    def test_preflight_reports_operational_readiness(self):
+        db_path = Path("/tmp/sportsbotv2_preflight_test.duckdb")
+        perf_path = Path("/tmp/sportsbotv2_preflight_perf.json")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2026-05-06",
+                    "game_pk": 1001,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "venue": "Fenway Park",
+                    "status": "Final",
+                    "away_score": 4,
+                    "home_score": 5,
+                    "total_runs": 9,
+                    "stadium": {"name": "Fenway Park", "roof": False, "altitude": 10},
+                    "weather": {"weather_source": "api.weather.gov:observations"},
+                }
+            )
+            db.ingest_odds("2026-05-06", 1001, "NYY", "BOS", "fanduel", "totals", {"total_line": 8.5})
+        finally:
+            db.close()
+        try:
+            recordkeeping.save_performance(recordkeeping.empty_performance(baseline=False), perf_path)
+            report = preflight.run_preflight(db_path=db_path, performance_path=perf_path)
+
+            self.assertEqual(report["date_range"]["min_date"], "2026-05-06")
+            self.assertEqual(report["latest_odds_date"], "2026-05-06")
+            self.assertEqual(report["latest_weather_date"], "2026-05-06")
+            self.assertIn("model_updated_at", report)
+        finally:
+            for path in (db_path, perf_path):
+                if path.exists():
+                    path.unlink()
 
     def test_readme_record_block_is_rendered_from_performance_summary(self):
         performance = recordkeeping.empty_performance(baseline=False)
@@ -495,6 +627,256 @@ class XgbProductionTests(unittest.TestCase):
         self.assertEqual(result["unavailable"], 1)
         self.assertEqual(row["weather_source"], "api.weather.gov:observations:unavailable")
         self.assertEqual(session.calls, [])
+
+    def test_retry_unavailable_backfill_targets_weatherbit_history_rows(self):
+        weather = import_weather_module()
+        old_key = os.environ.get("WEATHERBIT_API_KEY")
+        os.environ["WEATHERBIT_API_KEY"] = "test_weatherbit_key"
+        db_path = Path("/tmp/sportsbotv2_weather_retry_unavailable_test.duckdb")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2024-04-25",
+                    "game_pk": 2501,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "game_time_utc": "2024-04-25T23:10:00Z",
+                    "venue": "Fenway Park",
+                    "status": "Final",
+                    "away_score": 4,
+                    "home_score": 5,
+                    "total_runs": 9,
+                    "stadium": {
+                        "name": "Fenway Park",
+                        "roof": False,
+                        "altitude": 10,
+                        "cfBearing": 46,
+                    },
+                    "weather": {
+                        "weather_source": "api.weather.gov:observations:unavailable",
+                    },
+                }
+            )
+        finally:
+            db.close()
+
+        session = FakeSession(
+            {
+                "data": [
+                    {
+                        "timestamp_utc": "2024-04-25T23:00:00",
+                        "temp": 61.0,
+                        "wind_spd": 11.8,
+                        "wind_dir": 226,
+                        "rh": 64,
+                        "precip": 0.2,
+                        "pres": 1012.2,
+                    }
+                ],
+                "sources": ["KBOS"],
+            }
+        )
+        try:
+            result = weather.backfill_weather(
+                db_path=db_path,
+                start_date="2024-04-25",
+                end_date="2024-04-25",
+                retry_unavailable=True,
+                now_utc="2026-05-06T00:00:00Z",
+                sleep_s=0,
+                session=session,
+            )
+            db = Database(db_path)
+            try:
+                row = db.query("SELECT weather_source, weather_station FROM games WHERE game_pk = 2501")[0]
+            finally:
+                db.close()
+        finally:
+            if db_path.exists():
+                db_path.unlink()
+            if old_key is None:
+                os.environ.pop("WEATHERBIT_API_KEY", None)
+            else:
+                os.environ["WEATHERBIT_API_KEY"] = old_key
+
+        self.assertEqual(result["updated"], 1)
+        self.assertEqual(row["weather_source"], "weatherbit:history-hourly")
+        self.assertEqual(row["weather_station"], "KBOS")
+        self.assertEqual(len(session.calls), 1)
+
+    def test_weatherbit_history_normalizes_to_game_weather(self):
+        weather = import_weather_module()
+        old_key = os.environ.get("WEATHERBIT_API_KEY")
+        os.environ["WEATHERBIT_API_KEY"] = "test_weatherbit_key"
+        session = FakeSession(
+            {
+                "data": [
+                    {
+                        "timestamp_utc": "2026-05-06T22:00:00",
+                        "temp": 58.0,
+                        "wind_spd": 7.0,
+                        "wind_dir": 180,
+                        "rh": 60,
+                        "precip": 0.0,
+                        "pres": 1010.0,
+                    },
+                    {
+                        "timestamp_utc": "2026-05-06T23:00:00",
+                        "temp": 61.0,
+                        "wind_spd": 11.8,
+                        "wind_dir": 226,
+                        "rh": 64,
+                        "precip": 0.2,
+                        "pres": 1012.2,
+                    },
+                ],
+                "sources": ["KBOS"],
+            }
+        )
+        try:
+            result = weather.fetch_weather_for_game(
+                {
+                    "game_pk": 3,
+                    "date": "2026-05-06",
+                    "game_time_utc": "2026-05-06T23:35:00Z",
+                    "home_team": "BOS",
+                },
+                {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46},
+                session=session,
+                now_utc="2026-05-07T04:00:00Z",
+            )
+        finally:
+            if old_key is None:
+                os.environ.pop("WEATHERBIT_API_KEY", None)
+            else:
+                os.environ["WEATHERBIT_API_KEY"] = old_key
+
+        self.assertEqual(result["weather_source"], "weatherbit:history-hourly")
+        self.assertEqual(result["weather_station"], "KBOS")
+        self.assertEqual(result["weather_temp_f"], 61.0)
+        self.assertEqual(result["weather_wind_mph"], 11.8)
+        self.assertAlmostEqual(result["weather_wind_out_cf"], 1.0, places=2)
+        self.assertEqual(result["weather_humidity_pct"], 64.0)
+        self.assertEqual(result["weather_precip_pct"], 0.2)
+        self.assertEqual(result["weather_pressure_mb"], 1012.2)
+        self.assertEqual(result["weather_observed_at"], "2026-05-06T23:00:00+00:00")
+        self.assertTrue(session.calls[0]["url"].endswith("/history/hourly"))
+        self.assertNotIn("test_weatherbit_key", session.calls[0]["url"])
+        self.assertEqual(session.calls[0]["params"]["key"], "test_weatherbit_key")
+        self.assertEqual(session.calls[0]["params"]["units"], "I")
+
+    def test_weatherbit_forecast_normalizes_to_game_weather(self):
+        weather = import_weather_module()
+        old_key = os.environ.get("WEATHERBIT_API_KEY")
+        os.environ["WEATHERBIT_API_KEY"] = "test_weatherbit_key"
+        session = FakeSession(
+            {
+                "data": [
+                    {
+                        "timestamp_utc": "2026-05-06T23:00:00",
+                        "temp": 59.0,
+                        "wind_spd": 12.0,
+                        "wind_dir": 225,
+                        "rh": 72,
+                        "pop": 20,
+                        "pres": 1011.5,
+                    }
+                ],
+                "sources": ["forecast"],
+            }
+        )
+        try:
+            result = weather.fetch_weather_for_game(
+                {
+                    "game_pk": 4,
+                    "date": "2026-05-06",
+                    "game_time_utc": "2026-05-06T23:35:00Z",
+                    "home_team": "BOS",
+                },
+                {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46},
+                session=session,
+                now_utc="2026-05-06T15:00:00Z",
+            )
+        finally:
+            if old_key is None:
+                os.environ.pop("WEATHERBIT_API_KEY", None)
+            else:
+                os.environ["WEATHERBIT_API_KEY"] = old_key
+
+        self.assertEqual(result["weather_source"], "weatherbit:forecast-hourly")
+        self.assertEqual(result["weather_temp_f"], 59.0)
+        self.assertEqual(result["weather_wind_mph"], 12.0)
+        self.assertEqual(result["weather_humidity_pct"], 72.0)
+        self.assertEqual(result["weather_precip_pct"], 20.0)
+        self.assertTrue(session.calls[0]["url"].endswith("/forecast/hourly"))
+        self.assertNotIn("test_weatherbit_key", session.calls[0]["url"])
+        self.assertEqual(session.calls[0]["params"]["key"], "test_weatherbit_key")
+
+    def test_weatherbit_rate_limit_stops_backfill_without_nws_fallback(self):
+        weather = import_weather_module()
+        old_key = os.environ.get("WEATHERBIT_API_KEY")
+        os.environ["WEATHERBIT_API_KEY"] = "test_weatherbit_key"
+        db_path = Path("/tmp/sportsbotv2_weatherbit_rate_limit_test.duckdb")
+        if db_path.exists():
+            db_path.unlink()
+        db = Database(db_path)
+        try:
+            db.ingest_game(
+                {
+                    "date": "2024-04-25",
+                    "game_pk": 3001,
+                    "away_team": "NYY",
+                    "home_team": "BOS",
+                    "game_time_utc": "2024-04-25T23:10:00Z",
+                    "venue": "Fenway Park",
+                    "status": "Final",
+                    "away_score": 4,
+                    "home_score": 5,
+                    "total_runs": 9,
+                    "stadium": {
+                        "name": "Fenway Park",
+                        "roof": False,
+                        "altitude": 10,
+                        "cfBearing": 46,
+                    },
+                }
+            )
+        finally:
+            db.close()
+
+        session = StatusSession(429, headers={"Retry-After": "600"})
+        try:
+            result = weather.backfill_weather(
+                db_path=db_path,
+                start_date="2024-04-25",
+                end_date="2024-04-25",
+                force=True,
+                now_utc="2026-05-06T00:00:00Z",
+                sleep_s=0,
+                session=session,
+            )
+            db = Database(db_path)
+            try:
+                row = db.query("SELECT weather_source FROM games WHERE game_pk = 3001")[0]
+            finally:
+                db.close()
+        finally:
+            if db_path.exists():
+                db_path.unlink()
+            if old_key is None:
+                os.environ.pop("WEATHERBIT_API_KEY", None)
+            else:
+                os.environ["WEATHERBIT_API_KEY"] = old_key
+
+        self.assertTrue(result["rate_limited"])
+        self.assertEqual(result["retry_after_seconds"], 600)
+        self.assertEqual(result["checked"], 0)
+        self.assertIsNone(row["weather_source"])
+        self.assertEqual(len(session.calls), 1)
+        self.assertTrue(session.calls[0]["url"].endswith("/history/hourly"))
 
 
 if __name__ == "__main__":

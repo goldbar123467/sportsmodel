@@ -84,7 +84,7 @@ SportsBotv2/
 - [x] Add humidity factor (>70% boosts offense, <40% suppresses)
 - [x] Add temperature threshold (>90°F = more offense)
 
-## Phase 3: Audit & Gap Fix ✅ DONE
+## Phase 3A: Audit & Gap Fix ✅ DONE
 
 ### Audit Findings
 Read full tactician skill, compared against codebase, identified 3 highest-priority gaps.
@@ -114,56 +114,54 @@ Read full tactician skill, compared against codebase, identified 3 highest-prior
 - [x] Edge/pick decisions use combined projection
 - [x] JSON output includes tactician breakdown
 
-### 2.1 — Pitcher Rating
-- [ ] Make FIP constant configurable (default 3.20 for 2026)
-- [ ] Raise minimum IP threshold to 30 IP
-- [ ] Weight: 65% FIP, 35% ERA (was 60/40)
-- [ ] Add recent-form weighting (last 5 starts count double)
-- [ ] Show confidence indicator (low/med/high IP)
+## Phase 3B: Output & Usability ✅ READY
 
-### 2.2 — Offense Rating
-- [ ] Raise minimum PA threshold to 200
-- [ ] Add home/road split (teams hit differently on the road)
-- [ ] Add last-14-day hot/cold adjustment
+Phase 3B is the user-facing reporting layer. The core JSON, console card, and tracker already exist; the remaining work is to tighten the interfaces and add a portable export path without changing the projection model.
 
-### 2.3 — Park Factors
-- [ ] Apply park factor to pitcher ERAs (not just final total)
-- [ ] Add altitude adjustment for Coors Field
-- [ ] Add dome factor (dome = no weather, suppresses variance)
+### 3.1 — Structured Output ✅
+- [x] JSON output saved to `data/results/YYYY-MM-DD.json` via `src/output/json.js`
+- [x] Console table shows matchup, model, line, edge, pick, and confidence via `src/output/console.js`
+- [x] Confidence tiers render as stars: high `★★★`, medium `★★☆`, low `★☆☆`
+- [x] Tactician breakdown is included in saved JSON and printed output
 
-### 2.4 — Weather
-- [ ] Rate-limit weather calls (200ms between requests)
-- [ ] Skip weather for domed stadiums
-- [ ] Add humidity factor (high humidity = ball carries)
-- [ ] Add temperature threshold (>90°F = more offense)
+### 3.2 — Summary Report ✅ READY
+- [x] Daily recap prints picks made, overs, unders, and no-plays
+- [x] Pick tracker stores dated selections in `data/tracker/picks.json`
+- [x] `node src/index.js --resolve [YYYY-MM-DD]` resolves pending picks against final scores
+- [x] `node src/index.js --record` prints season record, ROI, profit, confidence splits, and pending count
+- [x] `node src/index.js --recent [N]` prints recent resolved picks
+- [x] `node src/index.js --export-csv [path]` exports tracker history to CSV
 
----
-
-## Phase 3: Output & Usability
-
-### 3.1 — Structured Output
-- [ ] JSON output saved to `data/results/YYYY-MM-DD.json`
-- [ ] Console table with matchup, model, line, edge, pick
-- [ ] Confidence tiers: ★★★ (strong), ★★ (moderate), ★ (lean)
-
-### 3.2 — Summary Report
-- [ ] Daily recap: picks made, wins/losses
-- [ ] Season tracking: record, ROI, units won/lost
-- [ ] Export to CSV
+### 3.3 — Phase 3B Implementation Notes
+- `--export-csv [path]` is implemented in `src/index.js` and `src/tracker.js`.
+- CSV columns: `date,away,home,pick,line,edge,confidence,projected,result,actualTotal,resolvedAt`.
+- Keep the existing JSON tracker as source of truth; CSV is a derived export only.
+- Do not change pick thresholds or projection math in this phase.
 
 ---
 
-## Phase 4: Hardening
+## Phase 4: Hardening ✅ READY
 
 ### 4.1 — Error Handling
-- [ ] Graceful fallback for each API (continue if one fails)
-- [ ] Log errors to file, not just console
-- [ ] Validate API responses before using data
+- [x] Shared `fetchJSON()` retries failed requests and honors HTTP 429 `Retry-After`
+- [x] Odds API gracefully returns no lines when `ODDS_API_KEY` is missing or the odds request fails
+- [x] Weather and HR-pick paths already skip failed optional data
+- [x] Pitcher/team/roster/weather stage failures are logged and degraded to missing data/no-play where possible
+- [x] Log structured errors to `data/logs/YYYY-MM-DD.log` in addition to console output
+- [x] Validate schedule and odds response shapes before using data
 
 ### 4.2 — Input Validation
-- [ ] Check date format
-- [ ] Check API key presence before making calls
-- [ ] Warn if odds data is stale (>4 hours old)
+- [x] Check CLI date format as strict `YYYY-MM-DD`
+- [x] Check odds API key presence before making odds calls
+- [x] Add local validation helpers for date and response checks
+- [x] Warn if odds data is stale relative to game start or fetch time
+
+### 4.3 — Phase 4 Implementation Notes
+- `src/validate.js` handles date validation, response guards, and stale-odds warnings.
+- `src/logger.js` writes structured records to `data/logs/`.
+- Treat missing required data as `NO PLAY` with a warning when possible.
+- Keep hard failures for invalid local config, malformed dates, and unreadable config files.
+- Do not add new external services in this phase.
 
 ---
 

@@ -24,8 +24,8 @@
     {
       "away": "MIL",
       "home": "STL",
-      "pred": 9.25,
-      "odds": 8.5,
+      "pred": 8.75,
+      "odds": 8.0,
       "edge": 0.75,
       "conf": "\u2605\u2606\u2606",
       "pick": "PASS",
@@ -34,9 +34,9 @@
     {
       "away": "ATL",
       "home": "SEA",
-      "pred": 8.44,
-      "odds": 8.0,
-      "edge": 0.44,
+      "pred": 4.85,
+      "odds": 4.5,
+      "edge": 0.35,
       "conf": "\u2606\u2606\u2606",
       "pick": "PASS",
       "game_pk": 823141
@@ -44,10 +44,10 @@
     {
       "away": "SD",
       "home": "SF",
-      "pred": 9.14,
-      "odds": 8.5,
-      "edge": 0.64,
-      "conf": "\u2605\u2606\u2606",
+      "pred": 4.88,
+      "odds": 4.5,
+      "edge": 0.38,
+      "conf": "\u2606\u2606\u2606",
       "pick": "PASS",
       "game_pk": 823226
     },
@@ -84,8 +84,8 @@
     {
       "away": "CWS",
       "home": "LAA",
-      "pred": 9.47,
-      "odds": 9.0,
+      "pred": 11.97,
+      "odds": 11.5,
       "edge": 0.47,
       "conf": "\u2606\u2606\u2606",
       "pick": "PASS",
@@ -114,8 +114,8 @@
     {
       "away": "BOS",
       "home": "DET",
-      "pred": 8.77,
-      "odds": 8.0,
+      "pred": 9.27,
+      "odds": 8.5,
       "edge": 0.77,
       "conf": "\u2605\u2606\u2606",
       "pick": "PASS",
@@ -124,8 +124,8 @@
     {
       "away": "NYM",
       "home": "COL",
-      "pred": 10.44,
-      "odds": 10.0,
+      "pred": 9.94,
+      "odds": 9.5,
       "edge": 0.44,
       "conf": "\u2606\u2606\u2606",
       "pick": "PASS",

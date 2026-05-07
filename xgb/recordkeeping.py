@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import json
 import math
+import csv
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 
 from db import Database
+from util import validate_date
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_DIR = SCRIPT_DIR.parent
@@ -139,6 +141,7 @@ def save_performance(performance, path=PERFORMANCE_PATH):
 
 
 def date_label(date_str):
+    validate_date(date_str)
     dt = datetime.strptime(date_str, "%Y-%m-%d")
     return f"{dt.strftime('%b')} {dt.day}"
 
@@ -365,11 +368,53 @@ def load_final_games_for_date(date_str, db_path=None):
 
 
 def settle_date(date_str, performance_path=PERFORMANCE_PATH, db_path=None):
+    date_str = validate_date(date_str)
     performance = load_performance(performance_path)
     picks = load_picks_for_date(date_str)
     games = load_final_games_for_date(date_str, db_path=db_path)
     performance = apply_settled_date(performance, date_str, picks, games)
     return save_performance(performance, performance_path)
+
+
+def export_settled_picks_csv(performance_path=PERFORMANCE_PATH, out_path=DATA_DIR / "settled_picks.csv"):
+    performance = load_performance(performance_path)
+    rows = performance.get("settled_picks", [])
+    columns = [
+        "date",
+        "game_pk",
+        "away",
+        "home",
+        "pick",
+        "line",
+        "model_total",
+        "edge",
+        "confidence",
+        "away_score",
+        "home_score",
+        "actual_total",
+        "result",
+        "settled_at",
+    ]
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+    return out_path, len(rows)
+
+
+def export_daily_csv(performance_path=PERFORMANCE_PATH, out_path=DATA_DIR / "daily_performance.csv"):
+    performance = load_performance(performance_path)
+    rows = performance.get("daily", [])
+    columns = ["date", "label", "record", "wins", "losses", "pushes", "picks", "win_pct"]
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+    return out_path, len(rows)
 
 
 def render_record_block(performance):
@@ -445,11 +490,29 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Settle MLB O/U picks and update README stats")
-    parser.add_argument("date", help="Date to settle (YYYY-MM-DD)")
+    parser.add_argument("command_or_date", nargs="?", help="Date to settle, or export-picks/export-daily")
+    parser.add_argument("date", nargs="?", help="Date to settle when using the settle command")
     parser.add_argument("--performance-path", default=str(PERFORMANCE_PATH))
     parser.add_argument("--readme-path", default=str(README_PATH))
+    parser.add_argument("--out")
     args = parser.parse_args()
 
-    perf = settle_date(args.date, Path(args.performance_path))
-    update_readme(perf, Path(args.readme_path))
-    print(f"Settled {args.date}: {perf['overall']['record']} ({perf['overall']['win_pct']:.1f}%)")
+    command = args.command_or_date
+    if command == "export-picks":
+        out = args.out or DATA_DIR / "settled_picks.csv"
+        path, count = export_settled_picks_csv(Path(args.performance_path), Path(out))
+        print(f"Exported {count} settled picks to {path}")
+    elif command == "export-daily":
+        out = args.out or DATA_DIR / "daily_performance.csv"
+        path, count = export_daily_csv(Path(args.performance_path), Path(out))
+        print(f"Exported {count} daily rows to {path}")
+    else:
+        if command == "settle":
+            date_arg = args.date
+        else:
+            date_arg = command
+        if not date_arg:
+            parser.error("date is required unless using export-picks or export-daily")
+        perf = settle_date(date_arg, Path(args.performance_path))
+        update_readme(perf, Path(args.readme_path))
+        print(f"Settled {date_arg}: {perf['overall']['record']} ({perf['overall']['win_pct']:.1f}%)")

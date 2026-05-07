@@ -14,6 +14,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import recordkeeping
+from util import setup_file_logger, validate_date
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_DIR = SCRIPT_DIR.parent
@@ -34,7 +35,7 @@ def load_env(path=PROJECT_DIR / ".env"):
 
 def local_dates(date_str=None, local_tz=DEFAULT_TZ):
     if date_str:
-        today = datetime.strptime(date_str, "%Y-%m-%d").date()
+        today = datetime.strptime(validate_date(date_str), "%Y-%m-%d").date()
     else:
         today = datetime.now(ZoneInfo(local_tz)).date()
     return today.isoformat(), (today - timedelta(days=1)).isoformat()
@@ -167,25 +168,43 @@ def format_telegram_message(today, settle_date, performance, picks):
 def run_daily_cycle(args):
     load_env()
     today, default_settle_date = local_dates(args.date, args.local_tz)
-    settle_date = args.settle_date or default_settle_date
+    settle_date = validate_date(args.settle_date or default_settle_date, "settle-date")
     season = str(args.season or today[:4])
     python = sys.executable
+    logger = setup_file_logger("sportsbotv2.daily_bot", today)
 
     print(f"{datetime.now().isoformat(timespec='seconds')}: === SportsBotv2 daily cycle for {today} ({args.local_tz}) ===")
     print(f"{datetime.now().isoformat(timespec='seconds')}: Settling previous card: {settle_date}")
+    logger.info("daily cycle started")
 
     if not args.skip_scrape:
-        run_step("Scraping previous day finals", [python, "scrape.py", "--date", settle_date, "--season", season])
+        try:
+            run_step("Scraping previous day finals", [python, "scrape.py", "--date", settle_date, "--season", season])
+        except subprocess.CalledProcessError:
+            logger.exception("previous day scrape failed")
+            raise
 
     performance = recordkeeping.settle_date(settle_date)
     recordkeeping.update_readme(performance)
 
     if not args.settle_only:
         if not args.skip_scrape:
-            run_step("Scraping today's schedule and odds", [python, "scrape.py", "--date", today, "--season", season])
+            try:
+                run_step("Scraping today's schedule and odds", [python, "scrape.py", "--date", today, "--season", season])
+            except subprocess.CalledProcessError:
+                logger.exception("today scrape failed")
+                raise
         if not args.skip_train:
-            run_step("Retraining XGBoost model", [python, "train.py"])
-        run_step("Generating today's picks", [python, "pick_today.py", today])
+            try:
+                run_step("Retraining XGBoost model", [python, "train.py"])
+            except subprocess.CalledProcessError:
+                logger.exception("training failed")
+                raise
+        try:
+            run_step("Generating today's picks", [python, "pick_today.py", today])
+        except subprocess.CalledProcessError:
+            logger.exception("pick generation failed")
+            raise
 
     picks_payload = read_json(recordkeeping.DATA_DIR / f"picks_{today}.json", {"date": today, "picks": []})
     message = format_telegram_message(today, settle_date, performance, picks_payload.get("picks", []))
@@ -195,6 +214,7 @@ def run_daily_cycle(args):
         send_telegram(message, dry_run=args.dry_run_telegram)
 
     print(f"{datetime.now().isoformat(timespec='seconds')}: === SportsBotv2 daily cycle complete ===")
+    logger.info("daily cycle complete")
     return 0
 
 

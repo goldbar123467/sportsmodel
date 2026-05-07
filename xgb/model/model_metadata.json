@@ -1,9 +1,9 @@
 {
-  "trained_at": "2026-05-06T02:51:44.996183",
+  "trained_at": "2026-05-06T21:20:46.455248",
   "train_games": 3692,
-  "test_games": 916,
+  "test_games": 923,
   "train_date_range": "2024-04-25 00:00:00 \u2192 2025-08-24 00:00:00",
-  "test_date_range": "2025-08-25 00:00:00 \u2192 2026-05-05 00:00:00",
+  "test_date_range": "2025-08-25 00:00:00 \u2192 2026-05-06 00:00:00",
   "features": [
     "park_factor",
     "weather_temp_f",
@@ -153,11 +153,11 @@
     "random_state": 42
   },
   "metrics": {
-    "mae": 3.4684,
-    "rmse": 4.4188,
-    "r2": 0.0318,
-    "naive_mae": 3.5986,
-    "market_mae": 3.4531
+    "mae": 3.4631,
+    "rmse": 4.4108,
+    "r2": 0.0341,
+    "naive_mae": 3.5971,
+    "market_mae": 3.4475
   },
   "leakage_policy": {
     "temporal_joins": "ASOF joins require source stat dates strictly before game date",

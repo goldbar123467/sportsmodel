@@ -44,6 +44,39 @@ function writePicksFile(picks) {
   writeFileSync(PICKS_FILE, JSON.stringify(picks, null, 2));
 }
 
+function csvValue(value) {
+  if (value == null) return '';
+  const text = String(value);
+  if (!/[",\n]/.test(text)) return text;
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+export function exportPicksCsv(outputPath = join(TRACKER_DIR, 'picks.csv')) {
+  const picks = loadPicks();
+  const columns = [
+    'date',
+    'away',
+    'home',
+    'pick',
+    'line',
+    'edge',
+    'confidence',
+    'projected',
+    'result',
+    'actualTotal',
+    'resolvedAt',
+  ];
+  const lines = [
+    columns.join(','),
+    ...picks.map(p => columns.map(col => csvValue(p[col])).join(',')),
+  ];
+  const path = outputPath || join(TRACKER_DIR, 'picks.csv');
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${lines.join('\n')}\n`);
+  console.log(`📤 Exported ${picks.length} tracker row(s) to ${path}`);
+  return path;
+}
+
 // ── Save today's picks ──────────────────────────────────────────────────
 
 /**

@@ -53,7 +53,7 @@ The current MLB model uses market totals as the baseline and trains on the resid
 - Stores historical and current-season data in DuckDB for repeatable training and auditing.
 - Trains an XGBoost model on completed games only.
 - Excludes final scores, final totals, market odds columns, and other leakage-prone fields from the feature set.
-- Adds `api.weather.gov` observations or hourly forecasts for outdoor games, with neutral indoor values for roofed stadiums.
+- Adds Weatherbit historical observations or hourly forecasts for outdoor games, with `api.weather.gov` as a no-key fallback and neutral indoor values for roofed stadiums.
 - Treats games without usable market odds as `NO ODDS` instead of fabricating a fallback betting line.
 - Produces daily over/under picks with confidence buckets and edge estimates.
 
@@ -62,7 +62,7 @@ The current MLB model uses market totals as the baseline and trains on the resid
 ```text
 xgb/
   scrape.py          # Daily MLB schedule/results and odds ingestion
-  weather.py         # api.weather.gov forecast/observation backfill
+  weather.py         # Weatherbit/api.weather.gov forecast and observation backfill
   sbr_scrape.py      # SBR odds scraper for historical/current lines
   train.py           # XGBoost residual model training
   pick_today.py      # Daily pick generation
@@ -93,7 +93,7 @@ cp .env.example .env
 
 Add your private API keys to `.env`. The real `.env` file is intentionally ignored by Git and should never be committed.
 
-`api.weather.gov` does not require a weather API key. Set `NWS_USER_AGENT` in `.env` to an identifying string with contact information, which is what the National Weather Service asks API clients to send.
+Set `WEATHERBIT_API_KEY` in `.env` to use Weatherbit historical hourly weather and hourly forecasts. `api.weather.gov` remains the fallback and does not require a weather API key; set `NWS_USER_AGENT` to an identifying string with contact information for those fallback requests.
 
 ## Daily Workflow
 
@@ -118,10 +118,10 @@ Generate picks for a date:
 Backfill weather:
 
 ```bash
-.venv/bin/python xgb/weather.py --retry-missing --max-observation-age-days 14
+.venv/bin/python xgb/weather.py --retry-unavailable --max-observation-age-days 14
 ```
 
-Older outdoor games that are no longer available from `api.weather.gov` are marked as `api.weather.gov:observations:unavailable` instead of being retried indefinitely. Domed or roofed parks are stored as neutral indoor weather.
+With `WEATHERBIT_API_KEY` set, older outdoor games are backfilled through Weatherbit historical hourly data. If Weatherbit returns a long rate-limit window, the command exits with `rate_limited: true`; rerun the same `--retry-unavailable` command after the retry window to resume remaining rows. Without Weatherbit, older outdoor games that are no longer available from `api.weather.gov` are marked as `api.weather.gov:observations:unavailable` instead of being retried indefinitely. Domed or roofed parks are stored as neutral indoor weather.
 
 Run the automated daily cycle:
 
@@ -145,7 +145,8 @@ The production test suite checks the important failure modes for this model:
 - Daily odds windows are based on the Eastern local MLB day.
 - Live scores are not treated as final training targets.
 - Missing odds are not converted into fake betting lines.
-- NWS weather calls send an identifying `User-Agent` and no API key.
+- Weatherbit calls keep API keys in request parameters and out of URLs.
+- NWS fallback calls send an identifying `User-Agent` and no API key.
 - Weather values are persisted in DuckDB and exposed to the model feature matrix.
 - XGBoost features exclude score, target, odds, and market leakage columns.
 

@@ -11,6 +11,7 @@ import xgboost as xgb
 
 sys.path.insert(0, str(Path(__file__).parent))
 from db import Database
+from util import validate_date
 from train import (
     build_feature_matrix, get_feature_cols, _apply_feature_engineering,
     compute_league_medians, safe_fill, TARGET, MODEL_DIR, predict_model_totals
@@ -69,28 +70,9 @@ def build_pick(away, home, pred, odds):
         'pick': direction,
     }
 
-def main():
-    date_str = datetime.now().strftime('%Y-%m-%d')
-    if len(sys.argv) > 1:
-        date_str = sys.argv[1]
-
-    # Load model
-    model_path = MODEL_DIR / 'ou_xgb.json'
-    model = xgb.XGBRegressor()
-    model.load_model(str(model_path))
-
-    # Load feature list from metadata
-    meta_path = MODEL_DIR / 'model_metadata.json'
-    with open(meta_path) as f:
-        meta = json.load(f)
-    feature_cols = meta['features']
-
-    # Build full feature matrix to get league medians
-    db = Database()
-    full_df = build_feature_matrix(db)
-
-    # Get today's games with odds
-    games_df = db.df(f"""
+def load_games_for_prediction(db, date_str):
+    """Load games for daily prediction using only feature rows before game date."""
+    return db.df("""
         SELECT
             g.game_pk, g.date, g.away_team, g.home_team,
             g.park_factor, g.stadium_name, g.stadium_roof,
@@ -161,16 +143,16 @@ def main():
             o.under_odds as odds_under
 
         FROM games g
-        LEFT JOIN team_hitting th_away ON g.date = th_away.date AND g.away_team = th_away.team
-        LEFT JOIN team_hitting th_home ON g.date = th_home.date AND g.home_team = th_home.team
-        LEFT JOIN statcast_batting sc_bat_away ON g.date = sc_bat_away.date AND g.away_team = sc_bat_away.team
-        LEFT JOIN statcast_batting sc_home ON g.date = sc_home.date AND g.home_team = sc_home.team
-        LEFT JOIN statcast_pitching sc_pit_away ON g.date = sc_pit_away.date AND g.away_team = sc_pit_away.team
-        LEFT JOIN statcast_pitching sc_pit_home ON g.date = sc_pit_home.date AND g.home_team = sc_pit_home.team
-        LEFT JOIN pitcher_logs pl_away ON g.date = pl_away.date AND g.away_pitcher_id = pl_away.pitcher_id
-        LEFT JOIN pitcher_logs pl_home ON g.date = pl_home.date AND g.home_pitcher_id = pl_home.pitcher_id
-        LEFT JOIN pitcher_statcast ps_away ON g.date = ps_away.date AND g.away_pitcher_id = ps_away.pitcher_id
-        LEFT JOIN pitcher_statcast ps_home ON g.date = ps_home.date AND g.home_pitcher_id = ps_home.pitcher_id
+        ASOF LEFT JOIN team_hitting th_away ON g.away_team = th_away.team AND g.date > th_away.date
+        ASOF LEFT JOIN team_hitting th_home ON g.home_team = th_home.team AND g.date > th_home.date
+        ASOF LEFT JOIN statcast_batting sc_bat_away ON g.away_team = sc_bat_away.team AND g.date > sc_bat_away.date
+        ASOF LEFT JOIN statcast_batting sc_home ON g.home_team = sc_home.team AND g.date > sc_home.date
+        ASOF LEFT JOIN statcast_pitching sc_pit_away ON g.away_team = sc_pit_away.team AND g.date > sc_pit_away.date
+        ASOF LEFT JOIN statcast_pitching sc_pit_home ON g.home_team = sc_pit_home.team AND g.date > sc_pit_home.date
+        ASOF LEFT JOIN pitcher_logs pl_away ON g.away_pitcher_id = pl_away.pitcher_id AND g.date > pl_away.date
+        ASOF LEFT JOIN pitcher_logs pl_home ON g.home_pitcher_id = pl_home.pitcher_id AND g.date > pl_home.date
+        ASOF LEFT JOIN pitcher_statcast ps_away ON g.away_pitcher_id = ps_away.pitcher_id AND g.date > ps_away.date
+        ASOF LEFT JOIN pitcher_statcast ps_home ON g.home_pitcher_id = ps_home.pitcher_id AND g.date > ps_home.date
         LEFT JOIN (
             SELECT date, game_pk, total_line, over_odds, under_odds
             FROM odds WHERE bookmaker = 'fanduel' AND market = 'totals'
@@ -179,8 +161,28 @@ def main():
         ORDER BY g.game_pk
     """, [date_str])
 
-    if 'total_line' in games_df.columns:
-        games_df = games_df.rename(columns={'total_line': 'odds_total'})
+def main():
+    date_str = datetime.now().strftime('%Y-%m-%d')
+    if len(sys.argv) > 1:
+        date_str = sys.argv[1]
+    date_str = validate_date(date_str)
+
+    # Load model
+    model_path = MODEL_DIR / 'ou_xgb.json'
+    model = xgb.XGBRegressor()
+    model.load_model(str(model_path))
+
+    # Load feature list from metadata
+    meta_path = MODEL_DIR / 'model_metadata.json'
+    with open(meta_path) as f:
+        meta = json.load(f)
+    feature_cols = meta['features']
+
+    # Build full feature matrix to get league medians
+    db = Database()
+    build_feature_matrix(db)
+
+    games_df = load_games_for_prediction(db, date_str)
 
     if games_df.empty:
         print(f"⚠️  No games found for {date_str}")

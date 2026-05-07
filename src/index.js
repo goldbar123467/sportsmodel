@@ -14,8 +14,10 @@ import { pickHomeRuns, printHRPicks } from './model/hrpicks.js';
 import { printResults, printSummary } from './output/console.js';
 import { printTactician, printCombined } from './output/tactician.js';
 import { saveResults } from './output/json.js';
-import { savePicks, resolvePicks, printRecord, printRecentPicks } from './tracker.js';
+import { savePicks, resolvePicks, printRecord, printRecentPicks, exportPicksCsv } from './tracker.js';
 import { loadConfig, loadTeams, fetchJSON } from './api/client.js';
+import { requireDate, validateArray, warnStaleOdds } from './validate.js';
+import { logError, logEvent } from './logger.js';
 
 const args = process.argv.slice(2);
 
@@ -37,8 +39,15 @@ if (args.includes('--recent')) {
   printRecentPicks(n);
   process.exit(0);
 }
+if (args.includes('--export-csv')) {
+  const maybePath = args[args.indexOf('--export-csv') + 1];
+  const outputPath = maybePath && !maybePath.startsWith('--') ? maybePath : undefined;
+  exportPicksCsv(outputPath);
+  process.exit(0);
+}
 if (args.includes('--resolve')) {
   const dateArg = args[args.indexOf('--resolve') + 1] || null;
+  if (dateArg) requireDate(dateArg);
   console.log('🔍 Resolving pending picks...');
   const { resolved, errors } = await resolvePicks(dateArg);
   if (resolved > 0) console.log(`✅ Resolved ${resolved} pick(s)`);
@@ -47,16 +56,41 @@ if (args.includes('--resolve')) {
   process.exit(0);
 }
 
-const date = args[0] || new Date().toISOString().slice(0, 10);
+const date = requireDate(args[0] || new Date().toISOString().slice(0, 10));
 const season = date.slice(0, 4);
 const config = loadConfig();
 const teams = loadTeams();
+logEvent(date, 'info', 'run started', { date, season });
+
+async function safeRequired(label, fallback, fn) {
+  try {
+    return await fn();
+  } catch (err) {
+    logError(date, `${label} failed`, err);
+    console.log(`  ⚠️  ${label}: ${err.message}`);
+    return fallback;
+  }
+}
+
+async function safeById(label, ids, fn) {
+  const out = {};
+  for (const id of ids) {
+    try {
+      out[id] = await fn(id);
+    } catch (err) {
+      out[id] = null;
+      logError(date, `${label} failed`, err, { id });
+      console.log(`  ⚠️  ${label} ${id}: ${err.message}`);
+    }
+  }
+  return out;
+}
 
 console.log(`\n🏟️  SportsBotv2 — MLB O/U Projections for ${date}\n`);
 
 // ── 1. Fetch schedule ──
 console.log('1️⃣  Fetching schedule...');
-const games = await fetchSchedule(date);
+const games = validateArray(await safeRequired('schedule', [], () => fetchSchedule(date)), 'schedule');
 console.log(`   Found ${games.length} games\n`);
 
 if (games.length === 0) {
@@ -76,12 +110,8 @@ for (const g of games) {
 
 // ── 3. Fetch pitcher stats (with rest days) ──
 console.log('2️⃣  Fetching pitcher stats...');
-const pitcherLogs = {};
-const pitcherHands = {};
-for (const pid of pitcherIds) {
-  pitcherLogs[pid] = await fetchPitcherStats(pid, season, date);
-  pitcherHands[pid] = await fetchPitcherHand(pid);
-}
+const pitcherLogs = await safeById('pitcher stats', pitcherIds, pid => fetchPitcherStats(pid, season, date));
+const pitcherHands = await safeById('pitcher hand', pitcherIds, pid => fetchPitcherHand(pid));
 const pFound = Object.values(pitcherLogs).filter(Boolean).length;
 console.log(`   Got stats for ${pFound}/${pitcherIds.size} pitchers`);
 
@@ -106,25 +136,23 @@ console.log(`   Got HR rates for ${Object.keys(pitcherHrRates).length} pitchers\
 
 // ── 4. Fetch team stats ──
 console.log('3️⃣  Fetching team stats...');
-const teamLogs = {};
-for (const tid of teamIds) {
-  teamLogs[tid] = await fetchTeamStats(tid, season);
-}
+const teamLogs = await safeById('team stats', teamIds, tid => fetchTeamStats(tid, season));
 const tFound = Object.values(teamLogs).filter(Boolean).length;
 console.log(`   Got stats for ${tFound}/${teamIds.size} teams\n`);
 
 // ── 5. Fetch rosters for platoon splits ──
 console.log('4️⃣  Fetching rosters (platoon splits)...');
-const rosters = {};
-for (const tid of teamIds) {
-  rosters[tid] = await fetchRoster(tid);
-}
+const rosters = await safeById('roster', teamIds, tid => fetchRoster(tid));
 console.log(`   Got rosters for ${Object.keys(rosters).length} teams\n`);
 
 // ── 6. Fetch odds ──
 console.log('5️⃣  Fetching odds...');
-const odds = await fetchOdds();
+const odds = validateArray(await safeRequired('odds', [], () => fetchOdds()), 'odds');
 console.log(`   Got lines for ${odds.length} games\n`);
+for (const warning of warnStaleOdds(odds)) {
+  console.log(`  ⚠️  Stale odds: ${warning}`);
+  logEvent(date, 'warn', 'stale odds', { warning });
+}
 
 // ── 7. Fetch weather ──
 console.log('6️⃣  Fetching weather...');
@@ -133,7 +161,7 @@ for (const abbr of [...new Set(games.map(g => g.home.abbr))]) {
   const s = getStadium(abbr);
   if (s && !s.roof) outdoorStadiums[abbr] = s;
 }
-const weather = await fetchAllWeather(outdoorStadiums);
+const weather = await safeRequired('weather', {}, () => fetchAllWeather(outdoorStadiums));
 const wCount = Object.values(weather).filter(Boolean).length;
 console.log(`   Got weather for ${wCount} outdoor stadiums\n`);
 

@@ -1,0 +1,156 @@
+{
+  "trained_at": "2026-04-30T23:41:50.699131",
+  "train_games": 448,
+  "test_games": 112,
+  "train_date_range": "2020-10-08 00:00:00 \u2192 2024-01-30 00:00:00",
+  "test_date_range": "2024-01-31 00:00:00 \u2192 2025-06-08 00:00:00",
+  "features": [
+    "home_xg",
+    "away_xg",
+    "diff_xg",
+    "combined_xg",
+    "home_shots",
+    "away_shots",
+    "diff_shots",
+    "combined_shots",
+    "home_shots_on",
+    "away_shots_on",
+    "diff_shots_on",
+    "combined_shots_on",
+    "home_possession",
+    "home_g5_gf",
+    "home_g5_ga",
+    "home_g5_xgf",
+    "home_g5_xga",
+    "away_g5_gf",
+    "away_g5_ga",
+    "away_g5_xgf",
+    "away_g5_xga",
+    "home_g5_wins",
+    "away_g5_wins",
+    "home_g5_clean",
+    "away_g5_clean",
+    "home_g10_gf",
+    "home_g10_ga",
+    "away_g10_gf",
+    "away_g10_ga",
+    "form_gf_diff",
+    "form_ga_diff",
+    "form_xg_diff",
+    "form_xga_diff",
+    "form_win_diff",
+    "combined_g5_gf",
+    "combined_g5_xgf",
+    "combined_g10_gf",
+    "combined_g10_ga",
+    "combined_wins",
+    "combined_clean",
+    "home_rank",
+    "away_rank",
+    "rank_diff",
+    "combined_rank",
+    "home_is_favorite",
+    "home_rest",
+    "away_rest",
+    "rest_diff",
+    "min_rest",
+    "home_short_rest",
+    "away_short_rest",
+    "is_neutral",
+    "tourney_importance",
+    "odds_total",
+    "has_odds"
+  ],
+  "params": {
+    "objective": "reg:squarederror",
+    "base_score": null,
+    "booster": null,
+    "callbacks": null,
+    "colsample_bylevel": null,
+    "colsample_bynode": null,
+    "colsample_bytree": 0.8,
+    "device": null,
+    "early_stopping_rounds": null,
+    "enable_categorical": false,
+    "eval_metric": null,
+    "feature_types": null,
+    "feature_weights": null,
+    "gamma": null,
+    "grow_policy": null,
+    "importance_type": null,
+    "interaction_constraints": null,
+    "learning_rate": 0.05,
+    "max_bin": null,
+    "max_cat_threshold": null,
+    "max_cat_to_onehot": null,
+    "max_delta_step": null,
+    "max_depth": 5,
+    "max_leaves": null,
+    "min_child_weight": 5,
+    "missing": NaN,
+    "monotone_constraints": null,
+    "multi_strategy": null,
+    "n_estimators": 400,
+    "n_jobs": null,
+    "num_parallel_tree": null,
+    "random_state": 42,
+    "reg_alpha": 1.0,
+    "reg_lambda": 1.0,
+    "sampling_method": null,
+    "scale_pos_weight": null,
+    "subsample": 0.8,
+    "tree_method": null,
+    "validate_parameters": null,
+    "verbosity": 0
+  },
+  "metrics": {
+    "train_mae": 0.3232,
+    "test_mae": 1.3254,
+    "test_rmse": 1.7067,
+    "test_r2": -0.266,
+    "naive_mae": 1.1607,
+    "better_than_naive": false
+  },
+  "top_features": [
+    {
+      "feature": "rest_diff",
+      "importance": 0.08441376686096191
+    },
+    {
+      "feature": "home_g5_ga",
+      "importance": 0.04615713655948639
+    },
+    {
+      "feature": "combined_clean",
+      "importance": 0.04446249082684517
+    },
+    {
+      "feature": "combined_g5_xgf",
+      "importance": 0.042137399315834045
+    },
+    {
+      "feature": "away_g5_xga",
+      "importance": 0.04066014289855957
+    },
+    {
+      "feature": "home_g5_clean",
+      "importance": 0.03639523684978485
+    },
+    {
+      "feature": "home_g5_wins",
+      "importance": 0.035980939865112305
+    },
+    {
+      "feature": "form_win_diff",
+      "importance": 0.03432344272732735
+    },
+    {
+      "feature": "away_g5_gf",
+      "importance": 0.03296610340476036
+    },
+    {
+      "feature": "form_ga_diff",
+      "importance": 0.032657939940690994
+    }
+  ]
+}
