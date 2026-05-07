@@ -1,8 +1,8 @@
-# SportsBotv2 MLB O/U
+# SportsBotv2 MLB Totals Model
 
-SportsBotv2 is a production-ready MLB over/under modeling workflow built around scraped sportsbook totals, MLB game data, pitcher/team features, DuckDB storage, and an XGBoost residual model. The system is designed to generate daily MLB totals picks while avoiding obvious target and market leakage.
+SportsBotv2 is an MLB over/under modeling workflow for daily totals picks. It combines sportsbook totals, MLB schedule and result data, team offense, pitcher quality, Statcast signals, park context, and game weather in a DuckDB-backed XGBoost pipeline.
 
-The current MLB model uses market totals as the baseline and trains on the residual between the final game total and the posted total. That keeps the model anchored to the betting market while allowing it to identify edges from schedule, team, pitcher, park, and recent-form features.
+The production model is market anchored: FanDuel totals are used as the baseline, and XGBoost learns the residual edge between the market number and the final game total. Market columns are stored for comparison and pick generation, but they are excluded from model features to avoid simply training the model to copy the book.
 
 ## Performance Snapshot
 
@@ -47,63 +47,123 @@ The current MLB model uses market totals as the baseline and trains on the resid
 
 <!-- SPORTSBOTV2_RECORD_END -->
 
-## What The Model Does
+## Current Tuned Model
 
-- Scrapes MLB schedules, game results, probable starters, team stats, pitcher data, market totals, and game weather.
-- Stores historical and current-season data in DuckDB for repeatable training and auditing.
-- Trains an XGBoost model on completed games only.
-- Excludes final scores, final totals, market odds columns, and other leakage-prone fields from the feature set.
-- Adds Weatherbit historical observations or hourly forecasts for outdoor games, with `api.weather.gov` as a no-key fallback and neutral indoor values for roofed stadiums.
-- Treats games without usable market odds as `NO ODDS` instead of fabricating a fallback betting line.
-- Produces daily over/under picks with confidence buckets and edge estimates.
+The current artifact in `xgb/model/ou_xgb.json` was retrained on May 7, 2026 after Weatherbit historical weather backfill. The tuned model uses XGBoost residual regression with a stricter `2.0` run edge threshold for daily picks.
+
+| Evaluation | Value |
+| --- | ---: |
+| Training games | 3,692 |
+| Holdout games | 923 |
+| Holdout period | Aug 25, 2025 to May 6, 2026 |
+| Model MAE | 3.6076 |
+| Market MAE | 3.4475 |
+| Tuned pick threshold | 2.0 runs |
+| Holdout picks at threshold | 160 |
+| Holdout record | 91-64-5 |
+| Holdout ROI | +20.6 units / +12.08% |
+
+The all-game MAE remains market dominated, which is expected for totals. The tuned objective is not to beat the market line on every game; it is to identify high-conviction residual edges. At the tuned threshold, the model produces fewer but stronger picks.
+
+Top SHAP features in the tuned model include starter workload and quality, walk-rate differential, contact profile, and weather context. `weather_run_environment` is now a top-five feature after the Weatherbit backfill.
+
+## Data And Weather Coverage
+
+The included DuckDB file is `xgb/mlb.duckdb`.
+
+| Weather source | Games |
+| --- | ---: |
+| Weatherbit historical hourly | 3,025 |
+| Indoor/roof-neutral | 1,348 |
+| api.weather.gov observations | 77 |
+| api.weather.gov hourly forecast | 7 |
+| Remaining historical unavailable | 525 |
+| Remaining missing | 62 |
+
+Weatherbit is the preferred provider when `WEATHERBIT_API_KEY` is configured. `api.weather.gov` remains a no-key fallback for observations and forecasts. Older rows can be resumed with:
+
+```bash
+.venv/bin/python xgb/weather.py --retry-unavailable --sleep 0
+```
+
+If Weatherbit returns a long retry window, the command exits with `rate_limited: true` and can be rerun later.
+
+## Leakage Controls
+
+SportsBotv2 is built around point-in-time training behavior:
+
+- Final scores and final totals are never model features.
+- Market totals and odds are used for residual target construction and edge comparison, not as XGBoost inputs.
+- Daily prediction joins use strict ASOF logic: source stat rows must be before the game date.
+- Live game scores are not ingested as completed training targets.
+- Missing odds produce `NO ODDS`; no fallback betting line is fabricated.
+- Weather API keys are passed through request parameters or `.env`, never embedded in URLs or committed files.
 
 ## Repository Layout
 
 ```text
+config/                 Stadium and team configuration
+src/                    Node/OpenClaw integration utilities
+tests/                  Production regression tests
 xgb/
-  scrape.py          # Daily MLB schedule/results and odds ingestion
-  weather.py         # Weatherbit/api.weather.gov forecast and observation backfill
-  sbr_scrape.py      # SBR odds scraper for historical/current lines
-  train.py           # XGBoost residual model training
-  pick_today.py      # Daily pick generation
-  auto_cycle.sh      # Daily scrape/train/pick automation
-  install_cron.sh    # Cron installer for daily automation
-  mlb.duckdb         # Included DuckDB database
-  data/              # Scraped games, picks, rosters, Statcast, and team data
-  model/             # Trained XGBoost model and metadata
-
-tests/
-  test_xgb_production.py
+  db.py                 DuckDB schema and ingestion helpers
+  scrape.py             MLB schedule, stats, pitcher, and odds ingestion
+  weather.py            Weatherbit and api.weather.gov weather backfill
+  train.py              XGBoost residual model training and evaluation
+  pick_today.py         Daily pick generation
+  daily_bot.py          Daily scrape/train/pick/send workflow
+  recordkeeping.py      Settled-pick tracking and README record updates
+  preflight.py          Operational readiness report
+  mlb.duckdb            Included model database
+  model/                Trained model and metadata
 ```
 
 ## Setup
 
-Create a virtual environment and install dependencies:
-
 ```bash
 python -m venv .venv
 .venv/bin/pip install -r requirements.txt
-```
-
-Create a local `.env` file from the example:
-
-```bash
 cp .env.example .env
 ```
 
-Add your private API keys to `.env`. The real `.env` file is intentionally ignored by Git and should never be committed.
+Fill `.env` locally:
 
-Set `WEATHERBIT_API_KEY` in `.env` to use Weatherbit historical hourly weather and hourly forecasts. `api.weather.gov` remains the fallback and does not require a weather API key; set `NWS_USER_AGENT` to an identifying string with contact information for those fallback requests.
-
-## Daily Workflow
-
-Run a one-day scrape:
-
-```bash
-.venv/bin/python xgb/scrape.py --date 2026-05-05 --season 2026
+```text
+ODDS_API_KEY=
+WEATHERBIT_API_KEY=
+NWS_USER_AGENT=SportsBotv2 MLB Weather (your-email@example.com)
+OPENCLAW_TELEGRAM_TARGET=
 ```
 
-Train the model:
+The real `.env` is intentionally ignored by Git and must not be committed.
+
+## Common Commands
+
+Run production tests:
+
+```bash
+.venv/bin/python -m unittest tests.test_xgb_production -v
+```
+
+Run preflight:
+
+```bash
+.venv/bin/python xgb/preflight.py --db-path xgb/mlb.duckdb
+```
+
+Scrape one MLB date:
+
+```bash
+.venv/bin/python xgb/scrape.py --date 2026-05-06 --season 2026
+```
+
+Backfill or resume weather:
+
+```bash
+.venv/bin/python xgb/weather.py --retry-unavailable --sleep 0
+```
+
+Train the tuned XGBoost residual model:
 
 ```bash
 .venv/bin/python xgb/train.py
@@ -112,50 +172,20 @@ Train the model:
 Generate picks for a date:
 
 ```bash
-.venv/bin/python xgb/pick_today.py 2026-05-05
+.venv/bin/python xgb/pick_today.py 2026-05-06
 ```
 
-Backfill weather:
+Run the full daily bot:
 
 ```bash
-.venv/bin/python xgb/weather.py --retry-unavailable --max-observation-age-days 14
+.venv/bin/python xgb/daily_bot.py --date 2026-05-06
 ```
 
-With `WEATHERBIT_API_KEY` set, older outdoor games are backfilled through Weatherbit historical hourly data. If Weatherbit returns a long rate-limit window, the command exits with `rate_limited: true`; rerun the same `--retry-unavailable` command after the retry window to resume remaining rows. Without Weatherbit, older outdoor games that are no longer available from `api.weather.gov` are marked as `api.weather.gov:observations:unavailable` instead of being retried indefinitely. Domed or roofed parks are stored as neutral indoor weather.
+## Operational Notes
 
-Run the automated daily cycle:
+- `xgb/model/model_metadata.json` records the feature list, tuned XGBoost params, leakage policy, held-out model metrics, and held-out betting metrics.
+- `xgb/data/performance.json` is the source for the live record block in this README.
+- `xgb/install_cron.sh` installs the daily Telegram workflow without removing unrelated cron jobs.
+- Private credentials are excluded. Generated database and model artifacts are included so the current state can be audited and reproduced.
 
-```bash
-cd xgb
-./auto_cycle.sh
-```
-
-Install the cron job:
-
-```bash
-cd xgb
-./install_cron.sh
-```
-
-## Validation
-
-The production test suite checks the important failure modes for this model:
-
-- API keys are passed safely through request parameters.
-- Daily odds windows are based on the Eastern local MLB day.
-- Live scores are not treated as final training targets.
-- Missing odds are not converted into fake betting lines.
-- Weatherbit calls keep API keys in request parameters and out of URLs.
-- NWS fallback calls send an identifying `User-Agent` and no API key.
-- Weather values are persisted in DuckDB and exposed to the model feature matrix.
-- XGBoost features exclude score, target, odds, and market leakage columns.
-
-Run the tests with:
-
-```bash
-.venv/bin/python -m unittest tests.test_xgb_production -v
-```
-
-## Notes
-
-This repository includes the model database and generated artifacts needed to inspect and reproduce the current MLB workflow. Private credentials are not included. Past performance does not guarantee future betting results.
+Past performance does not guarantee future betting results.

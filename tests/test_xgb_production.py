@@ -2,6 +2,7 @@ import sys
 import unittest
 import importlib
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import pandas as pd
@@ -24,6 +25,19 @@ def import_weather_module():
         return importlib.import_module("weather")
     except ModuleNotFoundError as exc:
         raise AssertionError("xgb/weather.py must provide the api.weather.gov integration") from exc
+
+
+@contextmanager
+def weatherbit_disabled():
+    old_key = os.environ.get("WEATHERBIT_API_KEY")
+    os.environ["WEATHERBIT_API_KEY"] = ""
+    try:
+        yield
+    finally:
+        if old_key is None:
+            os.environ.pop("WEATHERBIT_API_KEY", None)
+        else:
+            os.environ["WEATHERBIT_API_KEY"] = old_key
 
 
 class FakeResponse:
@@ -417,12 +431,13 @@ class XgbProductionTests(unittest.TestCase):
         }
         stadium = {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46}
 
-        result = weather.fetch_weather_for_game(
-            game,
-            stadium,
-            session=session,
-            now_utc="2026-05-07T04:00:00Z",
-        )
+        with weatherbit_disabled():
+            result = weather.fetch_weather_for_game(
+                game,
+                stadium,
+                session=session,
+                now_utc="2026-05-07T04:00:00Z",
+            )
 
         self.assertEqual(result["weather_source"], "api.weather.gov:observations")
         self.assertEqual(result["weather_station"], "KBOS")
@@ -475,17 +490,18 @@ class XgbProductionTests(unittest.TestCase):
             ]
         )
 
-        result = weather.fetch_weather_for_game(
-            {
-                "game_pk": 2,
-                "date": "2026-05-06",
-                "game_time_utc": "2026-05-06T23:35:00Z",
-                "home_team": "BOS",
-            },
-            {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46},
-            session=session,
-            now_utc="2026-05-06T15:00:00Z",
-        )
+        with weatherbit_disabled():
+            result = weather.fetch_weather_for_game(
+                {
+                    "game_pk": 2,
+                    "date": "2026-05-06",
+                    "game_time_utc": "2026-05-06T23:35:00Z",
+                    "home_team": "BOS",
+                },
+                {"lat": 42.3467, "lon": -71.0972, "roof": False, "cfBearing": 46},
+                session=session,
+                now_utc="2026-05-06T15:00:00Z",
+            )
 
         self.assertEqual(result["weather_source"], "api.weather.gov:forecastHourly")
         self.assertEqual(result["weather_temp_f"], 59.0)
@@ -607,15 +623,16 @@ class XgbProductionTests(unittest.TestCase):
             db.close()
 
         session = QueuedSession([])
-        result = weather.backfill_weather(
-            db_path=db_path,
-            start_date="2024-04-25",
-            end_date="2024-04-25",
-            max_observation_age_days=14,
-            now_utc="2026-05-06T00:00:00Z",
-            sleep_s=0,
-            session=session,
-        )
+        with weatherbit_disabled():
+            result = weather.backfill_weather(
+                db_path=db_path,
+                start_date="2024-04-25",
+                end_date="2024-04-25",
+                max_observation_age_days=14,
+                now_utc="2026-05-06T00:00:00Z",
+                sleep_s=0,
+                session=session,
+            )
         db = Database(db_path)
         try:
             row = db.query("SELECT weather_source FROM games WHERE game_pk = 2001")[0]

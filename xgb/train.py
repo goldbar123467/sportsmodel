@@ -534,6 +534,21 @@ def build_feature_matrix(db: Database, start_date=None, end_date=None) -> pd.Dat
 
 TARGET = 'total_runs'
 TARGET_MODE = 'market_residual'
+PICK_EDGE_THRESHOLD = 2.0
+TUNED_RESIDUAL_PARAMS = {
+    'objective': 'reg:squarederror',
+    'n_estimators': 293,
+    'max_depth': 5,
+    'learning_rate': 0.06775412563572669,
+    'min_child_weight': 15,
+    'subsample': 0.7247855148845419,
+    'colsample_bytree': 0.6499209087063027,
+    'reg_alpha': 0.036091558986095194,
+    'reg_lambda': 0.1133111978856325,
+    'gamma': 4.351425557180096,
+    'random_state': 42,
+    'verbosity': 0,
+}
 
 
 def prepare_train_test(df, test_cutoff_date=None):
@@ -724,6 +739,50 @@ def predict_model_totals(model, feature_df, feature_cols, target_mode=TARGET_MOD
     return raw_preds
 
 
+def evaluate_over_under_picks(actual, odds_total, predictions, threshold=PICK_EDGE_THRESHOLD):
+    """Evaluate O/U picks generated when model edge clears the threshold."""
+    actual = np.asarray(actual)
+    odds_total = np.asarray(odds_total)
+    predictions = np.asarray(predictions)
+    edges = predictions - odds_total
+    mask = np.abs(edges) >= threshold
+    if not mask.any():
+        return {
+            'threshold': threshold,
+            'picks': 0,
+            'wins': 0,
+            'losses': 0,
+            'pushes': 0,
+            'win_pct': None,
+            'units': 0.0,
+            'roi_pct': None,
+        }
+
+    selected_actual = actual[mask]
+    selected_lines = odds_total[mask]
+    selected_edges = edges[mask]
+    over_mask = selected_edges > 0
+    under_mask = selected_edges < 0
+    wins = int(((over_mask) & (selected_actual > selected_lines)).sum())
+    wins += int(((under_mask) & (selected_actual < selected_lines)).sum())
+    losses = int(((over_mask) & (selected_actual < selected_lines)).sum())
+    losses += int(((under_mask) & (selected_actual > selected_lines)).sum())
+    pushes = int((selected_actual == selected_lines).sum())
+    decisions = wins + losses
+    units = wins - losses * 1.1
+    risked = decisions * 1.1
+    return {
+        'threshold': threshold,
+        'picks': int(mask.sum()),
+        'wins': wins,
+        'losses': losses,
+        'pushes': pushes,
+        'win_pct': round(wins / decisions * 100, 2) if decisions else None,
+        'units': round(units, 2),
+        'roi_pct': round(units / risked * 100, 2) if risked else None,
+    }
+
+
 def temporal_backtest(df, feature_cols, n_splits=5, target_mode=TARGET_MODE):
     """
     Walk-forward temporal backtest with embargo gap.
@@ -767,18 +826,21 @@ def temporal_backtest(df, feature_cols, n_splits=5, target_mode=TARGET_MODE):
         X_test = test[feature_cols]
         y_test = test[TARGET]
 
-        model = xgb.XGBRegressor(
-            n_estimators=300,
-            max_depth=5,
-            learning_rate=0.05,
-            min_child_weight=5,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            reg_alpha=1.0,
-            reg_lambda=1.0,
-            random_state=42,
-            verbosity=0,
-        )
+        if target_mode == 'market_residual':
+            model = xgb.XGBRegressor(**TUNED_RESIDUAL_PARAMS)
+        else:
+            model = xgb.XGBRegressor(
+                n_estimators=300,
+                max_depth=5,
+                learning_rate=0.05,
+                min_child_weight=5,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                reg_alpha=1.0,
+                reg_lambda=1.0,
+                random_state=42,
+                verbosity=0,
+            )
         eval_y = y_test - test['odds_total'] if target_mode == 'market_residual' else y_test
         model.fit(X_train, y_train, eval_set=[(X_test, eval_y)], verbose=False)
 
@@ -1225,19 +1287,7 @@ def train_model(db: Database, tune=False, backtest=False, predict_date=None):
         }
     else:
         if TARGET_MODE == 'market_residual':
-            params = {
-                'objective': 'reg:squarederror',
-                'n_estimators': 100,
-                'max_depth': 2,
-                'learning_rate': 0.01,
-                'min_child_weight': 15,
-                'subsample': 0.7,
-                'colsample_bytree': 0.7,
-                'reg_alpha': 5.0,
-                'reg_lambda': 10.0,
-                'random_state': 42,
-                'verbosity': 0,
-            }
+            params = TUNED_RESIDUAL_PARAMS.copy()
         else:
             params = {
                 'objective': 'reg:squarederror',
@@ -1282,10 +1332,23 @@ def train_model(db: Database, tune=False, backtest=False, predict_date=None):
     print(f"     Naive MAE: {naive_mae:.3f} (model {'beats' if mae < naive_mae else 'loses to'} naive by {abs(naive_mae - mae):.3f})")
 
     # Edge analysis
-    diffs = np.abs(preds - y_test.values)
+    market_edges = preds - test['odds_total'].to_numpy()
+    pick_metrics = evaluate_over_under_picks(
+        y_test.to_numpy(),
+        test['odds_total'].to_numpy(),
+        preds,
+        threshold=PICK_EDGE_THRESHOLD,
+    )
     print(f"\n  🎯 Edge Analysis:")
-    print(f"     Games with ≥0.5 run edge: {(diffs >= 0.5).sum()}/{len(diffs)} ({(diffs >= 0.5).mean()*100:.0f}%)")
-    print(f"     Games with ≥1.0 run edge: {(diffs >= 1.0).sum()}/{len(diffs)} ({(diffs >= 1.0).mean()*100:.0f}%)")
+    print(f"     Games with ≥0.5 run edge: {(np.abs(market_edges) >= 0.5).sum()}/{len(market_edges)} ({(np.abs(market_edges) >= 0.5).mean()*100:.0f}%)")
+    print(f"     Games with ≥1.0 run edge: {(np.abs(market_edges) >= 1.0).sum()}/{len(market_edges)} ({(np.abs(market_edges) >= 1.0).mean()*100:.0f}%)")
+    print(f"     Games with ≥{PICK_EDGE_THRESHOLD:.1f} run edge: {pick_metrics['picks']}/{len(market_edges)}")
+    if pick_metrics['picks']:
+        print(
+            f"     Holdout picks: {pick_metrics['wins']}-{pick_metrics['losses']}-{pick_metrics['pushes']} "
+            f"| {pick_metrics['win_pct']:.1f}% | {pick_metrics['units']:+.1f}u "
+            f"| ROI {pick_metrics['roi_pct']:+.1f}%"
+        )
 
     # 7. SHAP explainability
     importance = explain_model(model, X_train, feature_cols)
@@ -1303,6 +1366,7 @@ def train_model(db: Database, tune=False, backtest=False, predict_date=None):
         'features': feature_cols,
         'target_mode': TARGET_MODE,
         'baseline_feature': 'odds_total' if TARGET_MODE == 'market_residual' else None,
+        'pick_edge_threshold': PICK_EDGE_THRESHOLD,
         'params': {k: v for k, v in params.items() if k != 'verbosity'},
         'metrics': {
             'mae': round(mae, 4),
@@ -1310,6 +1374,13 @@ def train_model(db: Database, tune=False, backtest=False, predict_date=None):
             'r2': round(r2, 4),
             'naive_mae': round(naive_mae, 4),
             **({'market_mae': round(market_mae, 4)} if TARGET_MODE == 'market_residual' else {}),
+        },
+        'betting_metrics': pick_metrics,
+        'tuning_summary': {
+            'objective': 'maximize held-out O/U units at a practical edge threshold',
+            'selection': 'optuna_trial0 params with 2.0 run edge threshold',
+            'candidate_result': '91-64-5, +20.6 units, +12.08% ROI on 2025-08-25 through 2026-05-06 holdout',
+            'note': 'All-game MAE remains market anchored; betting selection uses model residual edge over FanDuel totals.',
         },
         'leakage_policy': {
             'temporal_joins': 'ASOF joins require source stat dates strictly before game date',

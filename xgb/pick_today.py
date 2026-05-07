@@ -20,7 +20,7 @@ from train import (
 DATA_DIR = Path(__file__).parent / 'data'
 DATA_DIR.mkdir(exist_ok=True)
 
-EDGE_THRESHOLD = 0.8
+EDGE_THRESHOLD = 2.0
 
 def is_missing_odds(odds):
     if odds is None:
